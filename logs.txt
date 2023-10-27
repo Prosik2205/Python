@@ -1,0 +1,2 @@
+(datetime.datetime(2023, 10, 27, 12, 17, 3, 224890), 'multiply', (3, 3), {}, 9)
+(datetime.datetime(2023, 10, 27, 12, 17, 3, 225980), 'multiply', (1, 5), {}, 5)
