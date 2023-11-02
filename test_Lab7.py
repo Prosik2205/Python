@@ -1,8 +1,8 @@
-from Lab7 import charivna_kulka
+from Lab7 import charivna_kulka,answers
 
 def test_correct_answ():
  result_corr_answ = charivna_kulka("Gas prices will rise?")
- corr_answ = ['Yes','No','Maybe']
+ corr_answ = [*answers]
  assert result_corr_answ.split(": ")[1] in corr_answ
  
 def test_non_str():
@@ -18,5 +18,7 @@ def test_corretct_type():
    charivna_kulka("Gas prices will rise?")
   except Exception as e:
    raise TypeError(e)
+  
+  
  
 
