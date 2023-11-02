@@ -1,14 +1,18 @@
 import random
+answers = ('Yes','No','Maybe')
 
 def charivna_kulka(question):
  if type(question)!= str:
   raise Exception('Enter normal question')
- answers = ('Yes','No','Maybe')
+ 
+
+ if len(question) == 0:
+  raise Exception('Value is empty')
+ 
+
      
  return f'{question} : {random.choice(answers)}'
 
-def test():
- result = charivna_kulka("value")
- assert isinstance(result,str) 
+print(charivna_kulka("Gas prices will rise?"))
 
-print(charivna_kulka("Tolik pidor?"))     
+   
