@@ -9,7 +9,7 @@ class ChatClient:
         self.root = root
         self.root.title("Chat Client")
 
-        #Створення області прокрутки для відображення чату
+        #Створення області прокрутки для тексту
         self.chat_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=40, height=10)
         self.chat_area.pack(padx=10, pady=10)
 
@@ -21,7 +21,7 @@ class ChatClient:
         self.send_button = tk.Button(root, text="Send", command=self.send_message)
         self.send_button.pack(pady=10)
 
-        #Ініціалізація сокету для з'єднання з сервером
+        #Створення сокету для з'єднання з сервером
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_address = ('127.0.0.1', 5555)
 
@@ -53,13 +53,13 @@ class ChatClient:
                 if not data:
                     break
                 message = data.decode('utf-8')
-                #Оновлення текстового поля Tkinter
+                
                 self.update_chat_area(message)
                 
             except Exception as e:
                 print(str(e))
                 break
-    #Метод для оновлення текстового поля чату з новим повідомленням
+    #Метод для обновлення текстового поля з новими повідомленнями
     def update_chat_area(self, message):
         self.chat_area.insert(tk.END, message + '\n')
         self.chat_area.yview(tk.END)

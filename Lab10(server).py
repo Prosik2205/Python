@@ -5,19 +5,19 @@ class ChatServer:
     def __init__(self):
         #Створення сокету для взаємодії з клієнтами.
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #Визначення адреси та порту сервера.
         self.server_address = ('127.0.0.1', 5555)
-        #Прив'язка сокету до визначеної адреси та порту.
+        #Прив'язка сокету до заданої адреси та порту.
         self.server_socket.bind(self.server_address)
         #Прослуховування вхідних з'єднань, обмеження на одне з'єднання одночасно.
         self.server_socket.listen(1)
         print('Server listening on {}:{}'.format(*self.server_address))
-        #Ініціалізація списку підключених клієнтів.
+        #Створення списку підключених клієнтів.
         self.clients = []
         #Створення об'єкта блокування для безпечного доступу до ресурсів з різних потоків.
         self.lock = threading.Lock()
-        # Виклик методу для прийому з'єднань від клієнтів.
+        #Виклик методу для прийому з'єднань від клієнтів.
         self.accept_connections()
+    
     #Метод для прийому з'єднань від клієнтів.Безкінечний цикл, який очікує та приймає нові з'єднання від клієнтів.
     def accept_connections(self):
         while True:
@@ -28,7 +28,7 @@ class ChatServer:
             client_thread = threading.Thread(target=self.handle_client, args=(client_socket,))
             #Запуск потоку обробки клієнта.
             client_thread.start()
-            #Додавання інформації про клієнта до списку, забезпечуючи безпеку в многопоточному середовищі.
+            #Додавання інформації про клієнта до списку,забезпечуючи безпеку в многопоточному середовищі.
             with self.lock:
                 self.clients.append((client_socket, client_thread))
 
@@ -36,15 +36,15 @@ class ChatServer:
     def handle_client(self, client_socket):
         while True:
             try:
-                #Блокування до отримання даних від клієнта (до 1024 байт).
+                #Блокування до отримання даних від клієнта.
                 data = client_socket.recv(1024)
                 if not data:
                     break
-                #Декодування отриманого повідомлення з байтового представлення у рядок.
+                #Розшифровка отриманого повідомлення.
                 message = data.decode('utf-8')
                 print('Received message: {}'.format(message))
 
-                #Виклик методу для розсилки повідомлення усім іншим клієнтам.
+                #Виклик методу для відображення повідомлення усім іншим клієнтам.
                 with self.lock:
                     self.broadcast(message, client_socket)
 
@@ -54,38 +54,32 @@ class ChatServer:
 
         with self.lock:
             self.clients = [(sock, thread) for sock, thread in self.clients if sock != client_socket]
-    #Метод для розсилки повідомлення усім іншим клієнтам.
+    #Метод для відображення повідомлення усім іншим клієнтам.
     def broadcast(self, message, sender_socket):
         #Проходження усіх клієнтів у списку.
         for client, _ in self.clients:
-            #Якщо клієнт не є тим, хто відправив повідомлення:
+            #Перевірка чи повідомлення належить тому клієнту, який його відправив
             if client != sender_socket:
                 try:
-                    #Надсилання повідомлення клієнту (кодування у байти перед надсиланням).
+                    #Надсилання повідомлення клієнту.
                     client.send(message.encode('utf-8'))
-                    #Обробка можливих помилок при надсиланні.
                 except Exception as e:
                     print(str(e))
 
     #Метод для закриття всіх з'єднань та завершення роботи сервера.
     def stop_server(self):
-        #Захоплення блокування для забезпечення безпеки при доступі до ресурсів з різних потоків.
+         # Проходження усіх клієнтів та їхніх потоків.
         with self.lock:
-            # Проходження усіх клієнтів та їхніх потоків.
             for client_socket, _ in self.clients:
                 client_socket.close()
 
         self.server_socket.close()
-#Перевірка, чи код виконується як основна програма (а не імпортований як модуль).
+#Створення об'єкта ChatServer.
 if __name__ == "__main__":
-    #Створення об'єкта ChatServer.
     chat_server = ChatServer()
     try:
-        #Чекання введення користувача для зупинки сервера.
         input("Press Enter to stop the server.\n")
-        #Обробка винятку, який виникає при натисканні Ctrl+C для зупинки сервера.
     except KeyboardInterrupt:
         pass
-    #Завершення роботи сервера в будь-якому випадку, навіть якщо виникає виняток.
     finally:
         chat_server.stop_server()
