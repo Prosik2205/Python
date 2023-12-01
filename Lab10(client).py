@@ -3,7 +3,7 @@ from tkinter import scrolledtext
 import socket
 import threading
 
-#Ініціалізація класу ChatClient
+#Створення класу ChatClient
 class ChatClient:
     def __init__(self, root):
         self.root = root
