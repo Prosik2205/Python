@@ -2,3 +2,4 @@ pandas
 datasets
 pyarrow  
 fastparquet
+sentence-transformers
