@@ -31,7 +31,7 @@ import pandas as pd
 from datasets import Dataset
 
 # Завантажуємо ваш .tsv файл
-file_path = './data_folder/test.tsv'  # вказуєте шлях до вашого файлу
+file_path = './data_folder/test_2k.tsv'  # вказуєте шлях до вашого файлу
 df = pd.read_csv(file_path, sep='\t')
 
 # Перевірка даних
