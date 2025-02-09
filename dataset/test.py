@@ -3,7 +3,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Завантажуємо .tsv файл
-file_path = './data_folder/Text_Similarity_Dataset.csv'  # вказуєте шлях до вашого файлу
+file_path = './data_folder/2k.csv'  # вказуєте шлях до вашого файлу
 df = pd.read_csv(file_path)
 
 # 1. Завантаження моделі Sentence-BERT
