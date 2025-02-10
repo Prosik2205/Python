@@ -4,3 +4,6 @@ pyarrow
 fastparquet
 sentence-transformers
 nltk
+pydantic
+fastapi
+psycopg2

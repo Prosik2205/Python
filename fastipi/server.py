@@ -7,4 +7,5 @@ class FastServ:
         regisst = Registrator(app)
         app = regisst.registrator_all()
         return app
+
 app = FastServ().create_app()
