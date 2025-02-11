@@ -10,3 +10,4 @@ def get_db_connection():
         port="5432",
         cursor_factory=RealDictCursor
     )
+

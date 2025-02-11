@@ -1,5 +1,5 @@
 import subprocess
-
+# host port and variable like this must be from .env
 if __name__ == '__main__':
     port = "8000"
     host = "127.0.0.1"
