@@ -7,3 +7,10 @@ nltk
 pydantic
 fastapi
 psycopg2
+PyPDF2
+pdfplumber
+chardet
+fitz
+frontend
+PyMuPDF
+spacy

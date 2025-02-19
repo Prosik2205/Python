@@ -1,112 +1,80 @@
-# # import nltk
-# # from nltk.corpus import wordnet
-# # import pandas as pd
-# # import random
-# # from sentence_transformers import SentenceTransformer
-# # from sklearn.metrics.pairwise import cosine_similarity
 
-# # # Завантажуємо ресурс wordnet
-# # nltk.download("wordnet")
+# # Вказуємо шляхи до файлів
+pdf_path = 'output/ДМКТ  лекція 1 презентація 2024 ч  1 .pdf'
+csv_path = 'data_folder/лекція.csv'
 
-# # # Завантажуємо модель SentenceTransformer
-# # model = SentenceTransformer("all-MiniLM-L6-v2")
 
-# # # Функція для зміни тексту
-# # def modify_text(text):
-# #     words = text.split()
-# #     for i in range(len(words)):
-# #         synonyms = wordnet.synsets(words[i])
-# #         if synonyms:
-# #             synonyms_list = [lemma.name().replace("_", " ") for syn in synonyms for lemma in syn.lemmas()]
-# #             if synonyms_list:
-# #                 words[i] = random.choice(synonyms_list)  # Випадкова заміна слова
-# #     return " ".join(words)
+import PyPDF2
+import csv
 
-# # # Завантажуємо дані
-# # file_path = "./data_folder/test_t.tsv"  # Вкажи правильний шлях
-# # df = pd.read_csv(file_path, sep="\t")
+# Функція для витягнення тексту з PDF
+def extract_text_from_pdf(pdf_path):
+    with open(pdf_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        text = []
+        for page in reader.pages:
+            page_text = page.extract_text()
+            if page_text:
+                text.append(page_text)  # Зберігаємо текст без змін
+    return "\n".join(text)  # Об'єднуємо текст з усіх сторінок
 
-# # # Обробляємо колонку user_answer
-# # df["user_answer"] = df["user_answer"].apply(modify_text)
+# Перетворення тексту в CSV
+def convert_text_to_csv(text, csv_path):
+    with open(csv_path, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file, quoting=csv.QUOTE_ALL)  # Текст у лапках
+        writer.writerow(['text'])  # Заголовок
+        writer.writerow([text])  # Записуємо весь текст у одну клітинку
 
-# # # Перевірка similarity
-# # sentence1_embeddings = model.encode(df["user_answer"].tolist(), convert_to_tensor=True)
-# # sentence2_embeddings = model.encode(df["right_answer"].tolist(), convert_to_tensor=True)
-# # similarity_scores = cosine_similarity(sentence1_embeddings.cpu(), sentence2_embeddings.cpu())
+# Вказуємо шляхи до файлів
 
-# # # Додаємо подібність у відсотках
-# # df["Similarly"] = similarity_scores.diagonal() * 100
+# Виконання процесу
+text = extract_text_from_pdf(pdf_path)
+convert_text_to_csv(text, csv_path)
 
-# # # Перезаписуємо файл
-# # df.to_csv(file_path, sep="\t", index=False)
+print(f"✅ Конвертація завершена! Дані збережені в {csv_path}")
 
-# # print("Файл оновлено успішно!")
-# import nltk
-# from nltk.corpus import wordnet
-# import pandas as pd
-# import random
-# from sentence_transformers import SentenceTransformer
-# from sklearn.metrics.pairwise import cosine_similarity
 
-# # Завантажуємо ресурс wordnet
-# nltk.download("wordnet")
-# nltk.download("omw-1.4")
+# import fitz  # PyMuPDF
+# import csv
+# import os
 
-# # Завантажуємо модель SentenceTransformer
-# model = SentenceTransformer("all-MiniLM-L6-v2")
+# # Функція для перевірки наявності директорії та створення, якщо вона відсутня
+# def ensure_directory_exists(directory):
+#     if not os.path.exists(directory):
+#         os.makedirs(directory)
+#         print(f"✅ Директорію '{directory}' було створено.")
+#     else:
+#         print(f"✅ Директорія '{directory}' вже існує.")
 
-# # Функція для зміни тексту зі збереженням контексту
-# def modify_text(text):
-#     words = text.split()
-#     modified_words = []
+# # Функція для витягнення тексту з PDF
+# def extract_text_from_pdf(pdf_path):
+#     text = ""
+#     with fitz.open(pdf_path) as pdf:
+#         for page in pdf:
+#             text += page.get_text("text")
+#     return text
+
+# # Функція для конвертації тексту в CSV
+# def convert_text_to_csv(text, csv_path):
+#     lines = text.split('\n')
+#     # Перевіряємо наявність директорії для CSV файлу
+#     directory = os.path.dirname(csv_path)
+#     ensure_directory_exists(directory)
     
-#     for word in words:
-#         synonyms = wordnet.synsets(word)
-#         valid_synonyms = [
-#             lemma.name().replace("_", " ") 
-#             for syn in synonyms 
-#             for lemma in syn.lemmas() 
-#             if lemma.name().lower() != word.lower()  # Виключаємо саме слово
-#         ]
-        
-#         if valid_synonyms:
-#             modified_words.append(random.choice(valid_synonyms))
-#         else:
-#             modified_words.append(word)
-    
-#     return " ".join(modified_words)
+#     with open(csv_path, mode='w', newline='', encoding='utf-8') as file:
+#         writer = csv.writer(file)
+#         writer.writerow(['text'])  # Додаємо заголовок колонки
+#         for line in lines:
+#             writer.writerow([line])
 
-# # Завантажуємо дані
-# file_path = "./data_folder/test_t.tsv"  # Вкажи правильний шлях
-# df = pd.read_csv(file_path, sep="\t")
+# # Шляхи до файлів
 
-# # Обробляємо колонку user_answer
-# df["user_answer"] = df["user_answer"].apply(modify_text)
 
-# # Перевірка similarity
-# sentence1_embeddings = model.encode(df["user_answer"].tolist(), convert_to_tensor=True)
-# sentence2_embeddings = model.encode(df["right_answer"].tolist(), convert_to_tensor=True)
+# # Виконання процесу
+# text = extract_text_from_pdf(pdf_path)
+# convert_text_to_csv(text, csv_path)
 
-# similarity_scores = cosine_similarity(sentence1_embeddings.cpu(), sentence2_embeddings.cpu())
-
-# # Додаємо подібність у відсотках
-# df["Similarly"] = similarity_scores.diagonal() * 100
-
-# # Перезаписуємо файл
-# df.to_csv(file_path, sep="\t", index=False)
-
-# print("Файл оновлено успішно!")
+# print(f"✅ Текст збережено у {csv_path}")
 
 
 
-from datasets import load_dataset
-
-# Завантаження датасету
-ds = load_dataset("sentence-transformers/stsb")
-
-# Збереження кожної частини датасету в окремий CSV файл (train, validation, test)
-ds['train'].to_csv('train_dataset.csv', index=False)
-ds['validation'].to_csv('validation_dataset.csv', index=False)
-ds['test'].to_csv('test_dataset.csv', index=False)
-
-print("Датасет збережено у форматі CSV.")
