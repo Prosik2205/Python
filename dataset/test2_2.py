@@ -62,8 +62,8 @@ def process_pdfs_in_folder(input_folder, output_folder):
             convert_text_to_json(cleaned_text, json_path)  # Конвертуємо в JSON
 
 # Шляхи до папок
-input_folder = 'C:\\Users\\prosi\\Desktop\\VNS Data\\1 Курс\\1 Семестр\\Лінійна алгебра та аналітична геометрія\\PDF'  # Папка з PDF файлами
-output_folder = 'C:\\Users\\prosi\\Desktop\\json\\ЛААГ'  # Папка для збереження JSON файлів
+input_folder = 'C:\\Users\\prosi\\Desktop\\VNS Data\\1 Курс\\2 Семестр\\Соціологія Та Психологія\\PDF'  # Папка з PDF файлами
+output_folder = 'C:\\Users\\prosi\\Desktop\\json\\Соціологія і Психологія'  # Папка для збереження JSON файлів
 
 # Виконання процесу
 process_pdfs_in_folder(input_folder, output_folder)
