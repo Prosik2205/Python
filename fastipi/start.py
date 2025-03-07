@@ -1,8 +1,12 @@
 import subprocess
-# host port and variable like this must be from .env
+import os 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 if __name__ == '__main__':
-    port = "8000"
-    host = "127.0.0.1"
+    port = os.getenv("port")
+    host = os.getenv("host")
     from server import FastServ
     server = FastServ()
     module_name = "server:app"

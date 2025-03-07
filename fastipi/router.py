@@ -1,12 +1,11 @@
-
 from pydantic import BaseModel
 from fastapi import APIRouter
-from controller import controller
-# IMPORT MUST BE LIKE from controller import ControllerProducts 
+from controller import ControllerProducts as CP
+
 # Add prefix for thir route
 prod = APIRouter()
 
-# Remove this bullshit 
+# Remove this  
 class Product(BaseModel):
     id: int
     name: str
@@ -14,11 +13,11 @@ class Product(BaseModel):
 
 @prod.post("/")
 async def create_product(product: Product):
-    controller.post_product(product)
+    CP.post_product(product)
     return {"result": f"Product{product.name} has add" }
 
 # Must look like @prod.get("/<some_name>")
-# REMOVE FUCKING {product_id}
+# REMOVE  {product_id}
 # WRONG GET METHOD WRITE ONLY LIKE
 # @prod.get("/get_product>") 
 # async def get_product (request: Request, product_id:int = Query(alias="product_id")
@@ -31,7 +30,7 @@ async def create_product(product: Product):
 # return JSONResponse(content={"product":res_controller},status_code = 200) 
 @prod.get("/get/{product_id}")
 async def get_product(product_id: int):
-    return controller.get_product(product_id)
+    return CP.get_product(product_id)
 
 # WRONG must look like
 # @prod.put("/udpate_product")
@@ -44,11 +43,11 @@ async def get_product(product_id: int):
 
 @prod.put("/put/{product_id}")
 async def update_product(product_id: int, product: Product):
-    controller.put_product(product_id, product)
+    CP.put_product(product_id, product)
     return {"result": f"Product {product.name} has been updated"}
 
 # SAME LIKE FOR put method
 @prod.delete("/delete/{product_id}")
 async def delete_product(product_id: int):
-    controller.del_product(product_id)
+    CP.del_product(product_id)
     return {"result": f"Product{product_id} has del" }

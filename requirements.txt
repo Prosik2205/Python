@@ -16,3 +16,4 @@ PyMuPDF
 spacy
 deep-translator
 python-docx
+dotenv
