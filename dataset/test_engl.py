@@ -24,8 +24,8 @@ def translate_json(input_json_path, output_json_path):
     print(f"✅ Переклад завершено. Результат у {output_json_path}")
 
 # Вказати шляхи до файлів
-input_json_path = "C:\\Users\\prosi\\Desktop\\json\\Нова папка\\укр\\Лекція 1. Числові множини. Комплексні числа та дії над ними..json"
-output_json_path = "C:\\Users\\prosi\\Desktop\\json\\Нова папка\\інгліш\\Лекція 1. Числові множини. Комплексні числа та дії над ними..json"
+input_json_path = "C:\\Users\\prosi\\Desktop\\Json_format\\All_in.json"
+output_json_path = "C:\\Users\\prosi\\Desktop\\Json_format\\All_in_eng.json"
 
 # Виконати переклад
 translate_json(input_json_path, output_json_path)

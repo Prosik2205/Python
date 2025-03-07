@@ -1,3 +1,4 @@
+#############################################################################_PDF_######################################################################
 # import fitz  # PyMuPDF
 # import json
 # import os
@@ -67,7 +68,7 @@
 
 # # Виконання процесу
 # process_pdfs_in_folder(input_folder, output_folder)
-
+#############################################################################_Docx_######################################################################
 # import json
 # import os
 # from docx import Document
@@ -113,9 +114,10 @@
 #         convert_text_to_json(cleaned_text, json_path)
 
 
+############################################################################_Formater_######################################################################
 
-INPUT_FOLDER = "C:\\Users\\prosi\\Desktop\\test\\ТІМС(R)"  # Вхідна папка з JSON файлами
-OUTPUT_FOLDER = "C:\\Users\\prosi\\Desktop\\test\\test"  # Папка для відформатованих файлів
+INPUT_FOLDER = "C:\\Users\\prosi\\Desktop\\Json_format\\Нова папка"  # Вхідна папка з JSON файлами
+OUTPUT_FOLDER = "C:\\Users\\prosi\\Desktop\\Json_format\\Нова папка (2)"  # Папка для відформатованих файлів
 
 import os
 import json
@@ -165,6 +167,37 @@ for filename in os.listdir(INPUT_FOLDER):
             json.dump(formatted_data, file, ensure_ascii=False, indent=4)
 
         print(f"✅ Оброблено: {filename} -> {output_path}")
+
+#############################################################################_Make us whole_######################################################################
+# import os
+# import json
+
+# # Налаштування
+# INPUT_FOLDER = "C:\\Users\\prosi\\Desktop\\Json_format"  # Вхідна папка з підпапками
+# OUTPUT_FILE = "C:\\Users\\prosi\\Desktop\\All_in.json"  # Фінальний вихідний файл
+
+# all_texts = []  # Список для всього тексту
+
+# # Проходження по всіх папках та файлах
+# for root, _, files in os.walk(INPUT_FOLDER):
+#     for filename in files:
+#         if filename.endswith(".json"):
+#             file_path = os.path.join(root, filename)
+
+#             with open(file_path, "r", encoding="utf-8") as file:
+#                 try:
+#                     data = json.load(file)
+#                     all_texts.extend(entry["text"] for entry in data if "text" in entry)
+#                 except json.JSONDecodeError:
+#                     print(f"Помилка читання JSON: {file_path}")
+
+# # Запис у великий об'єднаний JSON-файл
+# merged_data = [{"text": text} for text in all_texts]
+
+# with open(OUTPUT_FILE, "w", encoding="utf-8") as output_file:
+#     json.dump(merged_data, output_file, ensure_ascii=False, indent=4)
+
+# print(f"✅ Успішно об'єднано {len(all_texts)} записів у {OUTPUT_FILE}")
 
 
 
