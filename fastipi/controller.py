@@ -107,6 +107,7 @@ class ControllerProducts:
     # def __init__(self):
     #     self.conn = get_db_connection()  
     #     self.cur = self.conn.cursor()
+    
 # @staticmethod
 #     def post_product(self, product):
 #         try:
@@ -116,6 +117,7 @@ class ControllerProducts:
 #         except psycopg2.IntegrityError:
 #             self.conn.rollback()
 #             raise HTTPException(status_code=400, detail="Product with this ID already exists")
+
 # @staticmethod
 #     def get_product(self, product_id):
 #         self.cur.execute("SELECT * FROM products WHERE id = %s;", (product_id,))
