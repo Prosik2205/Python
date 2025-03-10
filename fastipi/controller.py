@@ -2,6 +2,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import HTTPException
 from db import get_db_connection  
+#Create custom class Exeption|   HTTPException -> original Exeption.rest_exeption, і окрема функція Exeption.db_exeption коли стукаюсь до бази
 
 class ControllerProducts:
     # CAN BE but better in all function do call
