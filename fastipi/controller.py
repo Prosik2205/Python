@@ -10,7 +10,7 @@ class ControllerProducts:
     #     self.cur = self.conn.cursor()
     
     @staticmethod
-    def post_product(product):
+    def post_product(id,name,price):
         sql = """
             INSERT INTO products (id, name, price) 
             VALUES (%s, %s, %s) 
@@ -20,7 +20,7 @@ class ControllerProducts:
         try:
             db = get_db_connection() #add 
             cursor = db.cursor() #add
-            cursor.execute(sql, (product.id, product.name, product.price))
+            cursor.execute(sql, (id, name, price,))
             res = cursor.fetchone()
             db.commit()
         except psycopg2.IntegrityError:

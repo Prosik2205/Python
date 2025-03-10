@@ -2,8 +2,10 @@ from pydantic import BaseModel
 from fastapi import APIRouter, Request, Query
 from fastapi.responses import JSONResponse
 from controller import ControllerProducts as CP
+#Params методи передавються на get i delete
+#Добавити файл Valifator_product для валідації даних які приймаються, наприклад чи price = float
 
-# Add prefix for their route
+
 prod = APIRouter(prefix="/products")
 
 # Remove this  
@@ -14,7 +16,7 @@ prod = APIRouter(prefix="/products")
 
 @prod.post("/post_products")
 async def create_product(request: Request):
-    # Отримуємо дані з тіла запиту
+    #product_data = body
     product_data = await request.json()
     
     # Отримаємо окремі значення для продукту
