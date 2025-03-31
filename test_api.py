@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
-import fitz  # PyMuPDF
+import pymupdf as fitz  # PyMuPDF
 import json
 import os
 import shutil
@@ -117,3 +117,5 @@ async def get_processed_data(zip_id: str):
         data = json.load(json_file)
     
     return {"zip_id": zip_id, "data": data}
+
+#uvicorn test_api:app --reload
