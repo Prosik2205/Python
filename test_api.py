@@ -13,6 +13,8 @@ app = FastAPI()
 STORAGE_FOLDER = "./storage"
 os.makedirs(STORAGE_FOLDER, exist_ok=True)
 
+MAX_LENGTH = 1000  # Довжина одного текстового фрагмента
+
 # === Функція витягнення тексту з PDF ===
 def extract_text_from_pdf(pdf_bytes):
     text = ""
@@ -36,6 +38,29 @@ def convert_text_to_json(text):
 def translate_json(data):
     return [{"text": GoogleTranslator(source="uk", target="en").translate(item["text"])} for item in data]
 
+# === Функція розбиття тексту на рівні частини ===
+def size_row(data, max_length=MAX_LENGTH):
+    def split_text_into_chunks(text, max_length):
+        words = text.split()
+        result = []
+        current_chunk = ""
+
+        for word in words:
+            if len(current_chunk) + len(word) + 1 <= max_length:
+                current_chunk += " " + word if current_chunk else word
+            else:
+                result.append(current_chunk.strip())
+                current_chunk = word
+
+        if current_chunk:
+            result.append(current_chunk.strip())
+
+        return result
+
+    full_text = " ".join(entry["text"] for entry in data if "text" in entry)
+    formatted_chunks = split_text_into_chunks(full_text, max_length)
+    return [{"text": chunk} for chunk in formatted_chunks]
+
 # === Функція обробки PDF-файлу ===
 def process_pdf(pdf_path):
     with open(pdf_path, "rb") as file:
@@ -44,7 +69,8 @@ def process_pdf(pdf_path):
     cleaned_text = clean_text(text)
     json_data = convert_text_to_json(cleaned_text)
     translated_data = translate_json(json_data)
-    return translated_data
+    formatted_data = size_row(translated_data)
+    return formatted_data
 
 # === API для завантаження ZIP з папкою PDF-файлів ===
 @app.post("/upload")
