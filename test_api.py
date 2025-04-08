@@ -6,6 +6,7 @@ import shutil
 import zipfile
 from deep_translator import GoogleTranslator
 from uuid import uuid4
+from typing import List
 
 app = FastAPI()
 
@@ -72,40 +73,68 @@ def process_pdf(pdf_path):
     formatted_data = size_row(translated_data)
     return formatted_data
 
-# === API для завантаження ZIP з папкою PDF-файлів ===
 @app.post("/upload")
-async def upload_zip(file: UploadFile = File(alias="Json_format")):
-    # print(file)
-    if not file.filename.endswith(".zip"):
-        raise HTTPException(status_code=400, detail="Тільки ZIP-файли підтримуються")
-    
-    zip_id = str(uuid4())
-    zip_path = os.path.join(STORAGE_FOLDER, f"{zip_id}.zip")
-    extract_folder = os.path.join(STORAGE_FOLDER, zip_id)
-    os.makedirs(extract_folder, exist_ok=True)
-    
-    with open(zip_path, "wb") as buffer:
-        buffer.write(await file.read())
-    
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall(extract_folder)
-    
-    results = {}
-    for root, _, files in os.walk(extract_folder):
-        for filename in files:
-            if filename.endswith(".pdf"):
-                pdf_path = os.path.join(root, filename)
-                processed_data = process_pdf(pdf_path)
-                results[filename] = processed_data
-    
-    json_path = os.path.join(STORAGE_FOLDER, f"{zip_id}.json")
+async def upload_files(files: List[UploadFile] = File(alias="Json_format")):
+    all_results = {}
+
+    for file in files:
+        file_ext = file.filename.lower().split(".")[-1]
+
+        if file_ext == "zip":
+            zip_id = str(uuid4())
+            zip_path = os.path.join(STORAGE_FOLDER, f"{zip_id}.zip")
+            extract_folder = os.path.join(STORAGE_FOLDER, zip_id)
+            os.makedirs(extract_folder, exist_ok=True)
+
+            with open(zip_path, "wb") as buffer:
+                buffer.write(await file.read())
+
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extractall(extract_folder)
+
+            for root, _, inner_files in os.walk(extract_folder):
+                for filename in inner_files:
+                    if filename.endswith(".pdf"):
+                        pdf_path = os.path.join(root, filename)
+                        processed_data = process_pdf(pdf_path)
+                        all_results[filename] = processed_data
+
+            shutil.rmtree(extract_folder)
+            os.remove(zip_path)
+
+        elif file_ext == "pdf":
+            file_id = str(uuid4())
+            temp_pdf_path = os.path.join(STORAGE_FOLDER, f"{file_id}.pdf")
+
+            with open(temp_pdf_path, "wb") as buffer:
+                buffer.write(await file.read())
+
+            processed_data = process_pdf(temp_pdf_path)
+            all_results[file.filename] = processed_data
+
+            os.remove(temp_pdf_path)
+
+        else:
+            raise HTTPException(status_code=400, detail=f"Файл {file.filename} має непідтримуваний формат")
+
+    # Генеруємо один JSON для всіх файлів
+    final_id = str(uuid4())
+    json_path = os.path.join(STORAGE_FOLDER, f"{final_id}.json")
     with open(json_path, "w", encoding="utf-8") as json_file:
-        json.dump(results, json_file, ensure_ascii=False, indent=4)
-    
-    shutil.rmtree(extract_folder)  # Видаляємо тимчасову папку
-    os.remove(zip_path)  # Видаляємо ZIP-файл
-    
-    return {"zip_id": zip_id, "message": "Файли успішно оброблені та збережені"}
+        json.dump(all_results, json_file, ensure_ascii=False, indent=4)
+
+    return {
+        "file_id": final_id,
+        "message": "Файли оброблено успішно",
+        "files_processed": list(all_results.keys())
+    }
+
+
+
+
+
+
+
 
 # === API для отримання оброблених JSON-файлів ===
 @app.get("/data/{zip_id}")
@@ -121,4 +150,3 @@ async def get_processed_data(zip_id: str):
 
 #uvicorn test_api:app --reload
 
-#Визначити довжину запита
