@@ -1,0 +1,22 @@
+{
+    "Лекція 6.3. Біном Ньютона. Задача про цілочислові розв’язки. .pdf": [
+        {
+            "text": "Lecture 6 Theme 3 Combinatorial analysis Basic rules of combinatorial analysis Placement, connection and permutation. Bina Newton The task of integral solutions Generation of combinatorial objects Bina Newton The task of integral solutions The task of integral solutions The numbers of the second kind and the numbers of Bella Consider the problem of calculating the number of cuts of the set A to the immigrant parts."
+        }
+    ],
+    "Лекція 6.4. Генерування комбінаторних об’єктів.  перестановок..pdf": [
+        {
+            "text": "Lecture 6 Theme 3 Combinatorial analysis Basic rules of combinatorial analysis Placement, combination and permutation Bina Newton The task of integral solutions Generation of combinatorial objects Generation of combinatorial objects Generation of permutations B1B2… bn is called lexicographic next to A1a2… an, if not There is such a permutation C1C2… CN that A1A2… an <C1C2… CN and C1C2… CN <B1B2… BN. The algorithm for building lexicographically next permutation by permutation A1a2… an Step 1 Find such numbers AJ and AJ+1 such that (aj <aj+1) ∧ (aj+1> aj+2>…> an) It means that you need to find in the rearrangement the first thing is a couple of adjacent numbers, in which number that on the left, less than the number that is right. Step 2 Write in j-th position is the least of the numbers Aj+1, AJ+2,…, an at the same time more than AJ. Step 3 Write in ascending order the number AJ and the rest of the numbers aj+1, aj+2,…, an in position j+1, , n. Justification of the algorithm."
+        }
+    ],
+    "Лекція 6.1. Основні правила комбінаторного аналізу..pdf": [
+        {
+            "text": "Lecture 6 Theme 3 Combinatorial analysis Basic rules of combinatorial analysis. Placement, combination and permutation Bina Newton The task of integral solutions Generation of combinatorial objects Let's start with the wording Rules of product. Example The bookstore has 15 different books in discrete mathematics and 10 different books with mathematical analysis How much way a student can make a purchase to have two Different books from each discipline? According to the rule of the product 15 × 10 = 150."
+        }
+    ],
+    "Лекція 6.2. Розміщення, сполучення та перестановки.pdf": [
+        {
+            "text": "Lecture 6 Theme 3 Combinatorial analysis Basic rules of combinatorial analysis. Placement, combination and permutation Bina Newton The task of integral solutions Generation of combinatorial objects Calculating the number of placements and connections choice opportunities Using the product rule, we make sure that equality (1) Function 𝜑-Biectation (mutual and single reflection) Equality (4) has been proven. Repetition permutations"
+        }
+    ]
+}

@@ -75,6 +75,7 @@ def process_pdf(pdf_path):
 # === API для завантаження ZIP з папкою PDF-файлів ===
 @app.post("/upload")
 async def upload_zip(file: UploadFile = File(alias="Json_format")):
+    # print(file)
     if not file.filename.endswith(".zip"):
         raise HTTPException(status_code=400, detail="Тільки ZIP-файли підтримуються")
     
@@ -119,3 +120,5 @@ async def get_processed_data(zip_id: str):
     return {"zip_id": zip_id, "data": data}
 
 #uvicorn test_api:app --reload
+
+#Визначити довжину запита
