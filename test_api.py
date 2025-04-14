@@ -115,7 +115,7 @@ async def upload_files(files: List[UploadFile] = File(alias="Json_format")):
             os.remove(temp_pdf_path)
 
         else:
-            raise HTTPException(status_code=400, detail=f"Файл {file.filename} має непідтримуваний формат")
+            raise HTTPException(status_code=400, detail=f"File {file.filename} has an unsupported format")
 
     # Генеруємо один JSON для всіх файлів
     final_id = str(uuid4())
@@ -125,7 +125,7 @@ async def upload_files(files: List[UploadFile] = File(alias="Json_format")):
 
     return {
         "file_id": final_id,
-        "message": "Файли оброблено успішно",
+        "message": "Files processed successfully",
         "files_processed": list(all_results.keys())
     }
 
@@ -141,7 +141,7 @@ async def upload_files(files: List[UploadFile] = File(alias="Json_format")):
 async def get_processed_data(zip_id: str):
     json_path = os.path.join(STORAGE_FOLDER, f"{zip_id}.json")
     if not os.path.exists(json_path):
-        raise HTTPException(status_code=404, detail="Файл не знайдено")
+        raise HTTPException(status_code=404, detail="File not found")
     
     with open(json_path, "r", encoding="utf-8") as json_file:
         data = json.load(json_file)
