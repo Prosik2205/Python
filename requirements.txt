@@ -18,3 +18,4 @@ deep-translator
 python-docx
 dotenv
 python-multipart
+pymongo   

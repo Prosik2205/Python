@@ -7,33 +7,14 @@ import zipfile
 from deep_translator import GoogleTranslator
 from uuid import uuid4
 from typing import List
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
-from dotenv import load_dotenv
 
 app = FastAPI()
 
-# Директорія для збереження тимчасових файлів
+# Директорія для збереження JSON-файлів
 STORAGE_FOLDER = "./storage"
 os.makedirs(STORAGE_FOLDER, exist_ok=True)
 
 MAX_LENGTH = 1000  # Довжина одного текстового фрагмента
-
-# === MongoDB CODE START ===
-load_dotenv()
-uri = os.getenv("uri")
-
-client = MongoClient(uri, server_api=ServerApi('1'))
-
-try:
-    client.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
-
-db = client['PDF']
-collection = db['test']
-# === MongoDB CODE END ===
 
 # === Функція витягнення тексту з PDF ===
 def extract_text_from_pdf(pdf_bytes):
@@ -117,12 +98,6 @@ async def upload_files(files: List[UploadFile] = File(alias="Json_format")):
                         pdf_path = os.path.join(root, filename)
                         processed_data = process_pdf(pdf_path)
                         all_results[filename] = processed_data
-                        
-                        # === MongoDB INSERT ===
-                        collection.insert_one({
-                            "filename": filename,
-                            "content": processed_data
-                        })
 
             shutil.rmtree(extract_folder)
             os.remove(zip_path)
@@ -136,50 +111,35 @@ async def upload_files(files: List[UploadFile] = File(alias="Json_format")):
 
             processed_data = process_pdf(temp_pdf_path)
             all_results[file.filename] = processed_data
-            
-            # === MongoDB INSERT ===
-            collection.insert_one({
-                "filename": file.filename,
-                "content": processed_data
-            })
 
             os.remove(temp_pdf_path)
 
         else:
             raise HTTPException(status_code=400, detail=f"File {file.filename} has an unsupported format")
 
+    # Генеруємо один JSON для всіх файлів
+    final_id = str(uuid4())
+    json_path = os.path.join(STORAGE_FOLDER, f"{final_id}.json")
+    with open(json_path, "w", encoding="utf-8") as json_file:
+        json.dump(all_results, json_file, ensure_ascii=False, indent=4)
+
     return {
-        "message": "Files processed and saved to MongoDB successfully",
+        "file_id": final_id,
+        "message": "Files processed successfully",
         "files_processed": list(all_results.keys())
     }
 
-# === API для отримання конкретного обробленого JSON-файла ===
-@app.get("/data/file/{filename}")
-async def get_processed_data(filename: str):
-    document = collection.find_one({"filename": filename})
-    if not document:
-        raise HTTPException(status_code=404, detail="File not found in MongoDB")
+# === API для отримання оброблених JSON-файлів ===
+@app.get("/data/{zip_id}")
+async def get_processed_data(zip_id: str):
+    json_path = os.path.join(STORAGE_FOLDER, f"{zip_id}.json")
+    if not os.path.exists(json_path):
+        raise HTTPException(status_code=404, detail="File not found")
     
-    return {
-        "filename": filename,
-        "data": document["content"]
-    }
+    with open(json_path, "r", encoding="utf-8") as json_file:
+        data = json.load(json_file)
+    
+    return {"zip_id": zip_id, "data": data}
 
-# === API для отримання всіх оброблених JSON-файлів ===
-@app.get("/data/all_files")
-async def get_all_data():
-    documents = collection.find()  # Збираємо всі документи з колекції
-    all_data = []
+#uvicorn test_api:app --reload
 
-    for doc in documents:
-        all_data.append({
-            "filename": doc["filename"],
-            "content": doc["content"]
-        })
-
-    if not all_data:
-        raise HTTPException(status_code=404, detail="No data found in MongoDB")
-
-    return {"data": all_data}
-
-# uvicorn test_api:app --reload
