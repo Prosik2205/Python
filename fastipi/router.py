@@ -9,25 +9,32 @@ from controller import ControllerProducts as CP
 prod = APIRouter(prefix="/products")
 
 # Remove this  
-# class Product(BaseModel):
-#     id: int
-#     name: str
-#     price: float
+class Product(BaseModel):
+    id: int
+    name: str
+    price: float
 
 @prod.post("/post_products")
-async def create_product(request: Request):
-    #product_data = body
-    product_data = await request.json()
+async def create_product(product: Product):
+    CP.post_product(product.id,product.name, product.price)
+    return {"result": f"Product{product.name} has add" }    
+
+# @prod.post("/post_products")
+# async def create_product(request: Request):
+#     #product_data = body
+#     product_data = await request.json()
     
-    # Отримаємо окремі значення для продукту
-    _id = product_data.get("id")
-    _name = product_data.get("name")
-    _price = product_data.get("price")
+#     # Отримаємо окремі значення для продукту
+#     _id = product_data.get("id")
+#     _name = product_data.get("name")
+#     _price = product_data.get("price")
     
-    # Викликаємо метод для додавання продукту
-    CP.post_product(id = _id ,name= _name, price= _price)
+#     # Викликаємо метод для додавання продукту
+#     CP.post_product(id = _id ,name= _name, price= _price)
     
-    return {"result": f"Product {_name} has been added"}
+#     return {"result": f"Product {_name} has been added"}
+
+
 
 
 
@@ -102,10 +109,7 @@ async def get_product(request: Request, product_id: int = Query(alias="product_i
 
 
 
-# @prod.post("/")
-# async def create_product(product: Product):
-#     CP.post_product(product)
-#     return {"result": f"Product{product.name} has add" }
+
 
 # @prod.get("/get/{product_id}")
 # async def get_product(product_id: int):

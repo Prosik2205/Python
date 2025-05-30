@@ -22,8 +22,8 @@ class FastServ:
         app = regisst.registrator_all()
 
         @app.get("/")
-        async def empty_error():
-            pass
+        async def root():
+            return ("Welcome to the HELL")
 
         return app
 
