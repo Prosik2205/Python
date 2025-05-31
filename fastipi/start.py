@@ -1,12 +1,14 @@
 import subprocess
 import os 
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
+DB_PARAMS = json.loads(os.getenv("DB_PARAMS"))
 
 if __name__ == '__main__':
-    port = os.getenv("port")
-    host = os.getenv("host")
+    port = DB_PARAMS["port"]
+    host = DB_PARAMS["host"]
     from server import FastServ
     server = FastServ()
     module_name = "server:app"
