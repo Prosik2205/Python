@@ -11,8 +11,8 @@ def get_db_connection():
         dbname = os.getenv("dbname"),
         user = os.getenv("user"),
         password = os.getenv("password"),
-        host = os.getenv("host"),
-        port = os.getenv("port"),
+        host = os.getenv("db_host"),
+        port = os.getenv("db_port"),
         cursor_factory = RealDictCursor
     )
 
