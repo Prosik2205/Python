@@ -40,7 +40,7 @@ class ControllerProducts:
         
     @staticmethod
     def get_product(product_id):
-        sql = "SELECT * FROM products WHERE id = %s;"
+        sql = "SELECT id, name, price::float AS price FROM products WHERE id = %s;"
         db = None
         try:
             db = get_db_connection()

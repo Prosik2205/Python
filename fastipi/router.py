@@ -8,31 +8,21 @@ from controller import ControllerProducts as CP
 
 prod = APIRouter(prefix="/products")
 
-# Remove this  
-class Product(BaseModel):
-    id: int
-    name: str
-    price: float
+
 
 @prod.post("/post_products")
-async def create_product(product: Product):
-    CP.post_product(product.id,product.name, product.price)
-    return {"result": f"Product{product.name} has add" }    
+async def create_product(request: Request):
+    product_data = await request.json()
 
-# @prod.post("/post_products")
-# async def create_product(request: Request):
-#     #product_data = body
-#     product_data = await request.json()
+    # Отримаємо окремі значення для продукту
+    _id = product_data.get("id")
+    _name = product_data.get("name")
+    _price = product_data.get("price")
     
-#     # Отримаємо окремі значення для продукту
-#     _id = product_data.get("id")
-#     _name = product_data.get("name")
-#     _price = product_data.get("price")
+    # Викликаємо метод для додавання продукту
+    CP.post_product(id = _id ,name= _name, price= _price)
     
-#     # Викликаємо метод для додавання продукту
-#     CP.post_product(id = _id ,name= _name, price= _price)
-    
-#     return {"result": f"Product {_name} has been added"}
+    return {"result": f"Product {_name} has been added"}
 
 
 
@@ -75,11 +65,24 @@ async def get_product(request: Request, product_id: int = Query(alias="product_i
 
 
 
+@prod.put("/update_product")
+async def update_product(request: Request):
+    body = await request.json()
+    _id = int(body.get("id"))
+    _name = str(body.get("name"))
+    _price = float(body.get("price"))
+    # Створюємо об'єкт product як словник
+    product = type('Product', (), {})()  # створюємо порожній об'єкт
+    product.name = _name
+    product.price = _price
 
+    result = CP.put_product(_id, product)
+    return {"result": result}
 
-
-
-
+@prod.delete("/del_product")  # шлях без параметрів в URL
+async def del_product(request: Request, product_id: int = Query(alias="product_id")):
+    res_controller = CP.del_product(product_id)
+    return {"result": f"Product has been delete"}
 
 
 
@@ -108,6 +111,19 @@ async def get_product(request: Request, product_id: int = Query(alias="product_i
 
 
 
+
+# # Remove this  Use only for the test
+# (
+# class Product(BaseModel):
+#     id: int
+#     name: str
+#     price: float
+
+# @prod.post("/post_products")
+# async def create_product(product: Product):
+#     CP.post_product(product.id,product.name, product.price)
+#     return {"result": f"Product{product.name} has add" }    
+# )
 
 
 
