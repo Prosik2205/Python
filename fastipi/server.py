@@ -24,6 +24,7 @@ class FastServ:
         @app.get("/")
         async def root():
             return ("Welcome to the HELL")
+        
 
         return app
 

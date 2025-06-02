@@ -2,14 +2,10 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import HTTPException
 from db import get_db_connection  
-#Create custom class Exeption|   HTTPException -> original Exeption.rest_exeption, і окрема функція Exeption.db_exeption коли стукаюсь до бази
+#Потім Create custom class Exeption|   HTTPException -> original Exeption.rest_exeption, і окрема функція Exeption.db_exeption коли стукаюсь до бази
+#Винести в декоратор db,cursor,,,,, db.close() в окремому файлі
 
-class ControllerProducts:
-    # CAN BE but better in all function do call
-    # def __init__(self):
-    #     self.conn = get_db_connection()  
-    #     self.cur = self.conn.cursor()
-    
+class ControllerProducts:    
     @staticmethod
     def post_product(id,name,price):
         sql = """
@@ -19,8 +15,7 @@ class ControllerProducts:
         """
         db = None  
         try:
-            db = get_db_connection() #add 
-            cursor = db.cursor() #add
+            db,cursor = get_db_connection() 
             cursor.execute(sql, (id, name, price,))
             res = cursor.fetchone()
             db.commit()
@@ -57,7 +52,7 @@ class ControllerProducts:
                 db.close()
 
     @staticmethod
-    def put_product(product_id, product):
+    def put_product(product_id,_name,_price):
         sql = """
             UPDATE products SET name = %s, price = %s WHERE id = %s RETURNING *;
         """
@@ -65,7 +60,7 @@ class ControllerProducts:
         try:
             db = get_db_connection()
             cursor = db.cursor()
-            cursor.execute(sql, (product.name, product.price, product_id))
+            cursor.execute(sql, (_name, _price, product_id,))
             updated_product = cursor.fetchone()
             db.commit()
             if not updated_product:
@@ -104,10 +99,7 @@ class ControllerProducts:
 
 
 
- # CAN BE but better in all function do call
-    # def __init__(self):
-    #     self.conn = get_db_connection()  
-    #     self.cur = self.conn.cursor()
+
     
 # @staticmethod
 #     def post_product(self, product):
@@ -115,7 +107,7 @@ class ControllerProducts:
 #             self.cur.execute("INSERT INTO products (id, name, price) VALUES (%s, %s, %s) RETURNING *;", 
 #                              (product.id, product.name, product.price))
 #             self.conn.commit()
-#         except psycopg2.IntegrityError:
+#         except psycopg2.IntegrityError: Краще стандартні помилки   except Exception as e:
 #             self.conn.rollback()
 #             raise HTTPException(status_code=400, detail="Product with this ID already exists")
 

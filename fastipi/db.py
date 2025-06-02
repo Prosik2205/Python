@@ -8,7 +8,7 @@ load_dotenv()
 DB_PARAMS = json.loads(os.getenv("DB_PARAMS"))
 
 def get_db_connection():
-    return psycopg2.connect(
+    db = psycopg2.connect(
         dbname = DB_PARAMS["dbname"],
         user = DB_PARAMS["user"],
         password = DB_PARAMS["password"],
@@ -16,4 +16,6 @@ def get_db_connection():
         port = DB_PARAMS["db_port"],
         cursor_factory = RealDictCursor
     )
+    cur = db.cursor()
+    return db,cur
 
