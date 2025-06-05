@@ -4,7 +4,7 @@ from db import get_db_connection
 
 
 
-def post_dec(func):
+def dec(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         db, cursor = None, None

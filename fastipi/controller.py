@@ -1,14 +1,13 @@
 import psycopg2  
 from psycopg2.extras import RealDictCursor
 from fastapi import HTTPException
-from db import get_db_connection  
-from decorator import post_dec
+from decorator import dec
 #Потім Create custom class Exeption|   HTTPException -> original Exeption.rest_exeption, і окрема функція Exeption.db_exeption коли стукаюсь до бази
 
 class ControllerProducts:    
 
     @staticmethod
-    @post_dec
+    @dec
     def post_product(id, name, price, cursor=None, db=None):
         sql = """
             INSERT INTO products (id, name, price) 
@@ -18,17 +17,15 @@ class ControllerProducts:
         try:
             cursor.execute(sql, (id, name, price))
             res = cursor.fetchone()
-
         except psycopg2.IntegrityError:
             if db:
                 db.rollback()
             raise HTTPException(status_code=400, detail="Product with this ID already exists")
-        
         return res
 
         
     @staticmethod
-    @post_dec
+    @dec
     def get_product(product_id, cursor=None, db=None):
         sql = "SELECT id, name, price::float AS price FROM products WHERE id = %s;"
         cursor.execute(sql, (product_id,))
@@ -39,7 +36,7 @@ class ControllerProducts:
        
 
     @staticmethod
-    @post_dec
+    @dec
     def put_product(product_id,_name,_price, cursor=None, db=None):
         sql = """
             UPDATE products SET name = %s, price = %s WHERE id = %s RETURNING *;
@@ -52,7 +49,7 @@ class ControllerProducts:
 
 
     @staticmethod
-    @post_dec
+    @dec
     def del_product(product_id, cursor=None, db=None):
         sql = "DELETE FROM products WHERE id = %s RETURNING *;"
         cursor.execute(sql, (product_id,))

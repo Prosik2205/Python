@@ -2,6 +2,8 @@ import subprocess
 import os 
 import json
 from dotenv import load_dotenv
+import sys
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 load_dotenv()
 DB_PARAMS = json.loads(os.getenv("DB_PARAMS"))
