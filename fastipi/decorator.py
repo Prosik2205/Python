@@ -10,7 +10,7 @@ def dec(func):
         db, cursor = None, None
         try:
             db, cursor = get_db_connection()
-            result = func(*args, cursor=cursor, db=db, **kwargs)
+            result = func(*args, **kwargs, cursor=cursor, db=db,)
             db.commit()
             return result
         except Exception as e:

@@ -13,7 +13,7 @@ async def create_product(request: Request):
     product_data = await request.json()
     _id,_name,_price  = product_data.get("id"),product_data.get("name"),product_data.get("price")
     pv.validate_product(_id,_name,_price)
-    CP.post_product(id = _id ,name = _name, price = _price)
+    CP.post_product(_id , _name,  _price)
     return {"result": f"Product {_name} has been added"}
 
 
