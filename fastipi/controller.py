@@ -2,98 +2,65 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import HTTPException
 from db import get_db_connection  
+from decorator import post_dec
 #Потім Create custom class Exeption|   HTTPException -> original Exeption.rest_exeption, і окрема функція Exeption.db_exeption коли стукаюсь до бази
-#Винести в декоратор db,cursor,,,,, db.close() в окремому файлі
 
 class ControllerProducts:    
+
     @staticmethod
-    def post_product(id,name,price):
+    @post_dec
+    def post_product(id, name, price, cursor=None, db=None):
         sql = """
             INSERT INTO products (id, name, price) 
             VALUES (%s, %s, %s) 
             RETURNING *;
         """
-        db = None  
         try:
-            db,cursor = get_db_connection() 
-            cursor.execute(sql, (id, name, price,))
+            cursor.execute(sql, (id, name, price))
             res = cursor.fetchone()
-            db.commit()
+
         except psycopg2.IntegrityError:
             if db:
                 db.rollback()
             raise HTTPException(status_code=400, detail="Product with this ID already exists")
-        except Exception as e:
-            if db:
-                db.rollback()
-            raise Exception(f"Problem with base {e}")
-        finally:
-            if db:
-                db.close()
         
         return res
+
         
     @staticmethod
-    def get_product(product_id):
+    @post_dec
+    def get_product(product_id, cursor=None, db=None):
         sql = "SELECT id, name, price::float AS price FROM products WHERE id = %s;"
-        db = None
-        try:
-            db = get_db_connection()
-            cursor = db.cursor()
-            cursor.execute(sql, (product_id,))
-            product = cursor.fetchone()
-            if not product:
+        cursor.execute(sql, (product_id,))
+        product = cursor.fetchone()
+        if not product:
                 raise HTTPException(status_code=404, detail="Product not found")
-            return product
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Database error: {e}")
-        finally:
-            if db:
-                db.close()
+        return product
+       
 
     @staticmethod
-    def put_product(product_id,_name,_price):
+    @post_dec
+    def put_product(product_id,_name,_price, cursor=None, db=None):
         sql = """
             UPDATE products SET name = %s, price = %s WHERE id = %s RETURNING *;
         """
-        db = None
-        try:
-            db = get_db_connection()
-            cursor = db.cursor()
-            cursor.execute(sql, (_name, _price, product_id,))
-            updated_product = cursor.fetchone()
-            db.commit()
-            if not updated_product:
+        cursor.execute(sql, (_name, _price, product_id,))
+        updated_product = cursor.fetchone()
+        if not updated_product:
                 raise HTTPException(status_code=404, detail="Product not found")
-            return updated_product
-        except Exception as e:
-            if db:
-                db.rollback()
-            raise HTTPException(status_code=500, detail=f"Database error: {e}")
-        finally:
-            if db:
-                db.close()
+        return updated_product
+
 
     @staticmethod
-    def del_product(product_id):
+    @post_dec
+    def del_product(product_id, cursor=None, db=None):
         sql = "DELETE FROM products WHERE id = %s RETURNING *;"
-        db = None
-        try:
-            db = get_db_connection()
-            cursor = db.cursor()
-            cursor.execute(sql, (product_id,))
-            deleted_product = cursor.fetchone()
-            db.commit()
-            if not deleted_product:
+        cursor.execute(sql, (product_id,))
+        deleted_product = cursor.fetchone()
+        if not deleted_product:
                 raise HTTPException(status_code=404, detail="Product not found")
-            return deleted_product
-        except Exception as e:
-            if db:
-                db.rollback()
-            raise HTTPException(status_code=500, detail=f"Database error: {e}")
-        finally:
-            if db:
-                db.close()
+        return deleted_product
+        
 
 
 
