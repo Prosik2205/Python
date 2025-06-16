@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from fastapi import APIRouter, Request, Query
 from fastapi.responses import JSONResponse
-from controller import ControllerProducts as CP
+from Controllers.controller import ControllerProducts as CP
 from Validators.Validtor_product import ProductValidator
 from Validators.Validator_response import Responce as resp
 prod = APIRouter(prefix="/products")
