@@ -11,14 +11,14 @@ class ControllerUser:
 
     # @staticmethod
     # @dec
-    # def post_signUp(first_name, second_name, father_name, email, password, cursor=None, db=None):
+    # def post_signUp(full_name, email, password, cursor=None, db=None):
     #     sql = """
-    #         INSERT INTO products (first_name, second_name, father_name, email, password) 
+    #         INSERT INTO products (full_name, email, password) 
     #         VALUES (%s, %s, %s, %s, %s) 
     #         RETURNING *;
     #     """
     #     try:
-    #         cursor.execute(sql,(first_name, second_name, father_name, email, password))
+    #         cursor.execute(sql,(full_name, email, password))
     #         res = cursor.fetchone()
     #     except psycopg2.IntegrityError:
     #         if db:
@@ -28,7 +28,7 @@ class ControllerUser:
     # 
     @staticmethod
     @dec
-    def register_user(first_name, second_name, father_name, email, password, cursor=None, db=None):
+    def register_user(full_name, email, password, cursor=None, db=None):
 
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         if cursor.fetchone():

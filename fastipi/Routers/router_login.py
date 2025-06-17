@@ -8,8 +8,8 @@ user = APIRouter(prefix="/users")
 # @user.post("/post_signUp")
 # async def signup(request: Request):
 #     write_info = await request.json()
-#     first_name, second_name, father_name, email, password = write_info.get("first_name"),write_info.get("second_name"),write_info.get("father_name"),write_info.get("email"),write_info.get("password")
-#     CU.post_signUp(first_name, second_name, father_name, email, password)
+#     full_name, email, password = write_info.get("full_name"),write_info.get("email"),write_info.get("password")
+#     CU.post_signUp(full_name, email, password)
 #     return{"result":f"User{first_name}{second_name} has been added"}
 
 
@@ -17,11 +17,7 @@ user = APIRouter(prefix="/users")
 @user.post("/register")
 
 def register_user(
-    full_name: str = Form(...),
-    email: str = Form(...),
-    password: str = Form(...),
-    cursor=None, db=None
-):
+    full_name: str = Form(...), email: str = Form(...), password: str = Form(...), cursor=None, db=None):
     return CU.register_user(full_name, email, password, cursor, db)
 
 
