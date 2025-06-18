@@ -77,3 +77,7 @@ class ControllerUser:
      del temporary_users[email]
 
      return {"message": "User successfully registered"}
+
+
+
+
