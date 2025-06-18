@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from Controllers.controller_users import ControllerUser as CU
 from Validators.Validator_response import Responce as resp
 from datetime import date
+import requests
 from db import get_db_connection  
 user = APIRouter(prefix="/users")
 

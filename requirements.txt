@@ -19,3 +19,4 @@ python-docx
 dotenv
 python-multipart
 pymongo   
+sendgrid
