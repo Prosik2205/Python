@@ -1,2 +1,4 @@
 envire
 .env
+.pyc 
+__pycache__
