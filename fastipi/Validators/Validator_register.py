@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 import re
-from datetime import datetime, date
+from datetime import date
 
 class RegistorValidator:
     def vaidate_name(self,name):

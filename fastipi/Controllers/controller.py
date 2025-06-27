@@ -1,5 +1,4 @@
 import psycopg2  
-from psycopg2.extras import RealDictCursor
 from fastapi import HTTPException
 from decorators.decorator_product import dec
 

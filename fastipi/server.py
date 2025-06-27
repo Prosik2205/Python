@@ -1,8 +1,6 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI
 from registrator import Registrator
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.base import BaseHTTPMiddleware
-import os 
 from dotenv import load_dotenv
 
 load_dotenv()

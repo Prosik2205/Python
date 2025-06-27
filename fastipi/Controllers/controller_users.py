@@ -1,12 +1,9 @@
 import random
 import string
-import psycopg2  
-from psycopg2.extras import RealDictCursor
 from fastapi import HTTPException
 from decorators.decorator_product import dec
-import os
 from dotenv import load_dotenv
-from Utilites.send_ver_mess import send_verification_email as sve
+from Utils.send_ver_mess import send_verification_email as sve
 
 load_dotenv()  
 verification_codes = {}
