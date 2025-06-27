@@ -1,5 +1,5 @@
 # from Routers.router import prod
-from fastipi.Routers.userRoute import user
+from Routers.userRoute import user
 
 class Registrator:
     def __init__(self,app):

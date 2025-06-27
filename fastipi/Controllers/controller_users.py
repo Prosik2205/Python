@@ -3,7 +3,7 @@ import string
 from fastapi import HTTPException
 from decorators.decorator_product import dec
 from dotenv import load_dotenv
-from Utils.send_ver_mess import send_verification_email as sve
+from Utils.send_ver_mess import Mess as m
 
 load_dotenv()  
 verification_codes = {}
@@ -15,7 +15,8 @@ class ControllerUser:
     @dec
     def register_user(full_name, email, passwords, birthday, cursor=None, db=None):
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-        if cursor.fetchone():
+        base_result = cursor.fetchone()
+        if base_result:
             raise HTTPException(status_code=400, detail="User already exists")
 
         code = ''.join(random.choices(string.digits, k=6))
@@ -24,19 +25,26 @@ class ControllerUser:
             "full_name": full_name,
             "email": email,
             "passwords": passwords,
-            "birthday": birthday
+            "birthday": birthday,
+            "code": code
         }
+        # token = jwt.encode(temporary_users)
+        # sve(email, code)
+        # # return {"message": "Verification code sent to your email"}
+        # return token
 
-        sve(email, code)
+        m().send_verification_email(email, code)
         return {"message": "Verification code sent to your email"}
 
     @staticmethod
     @dec
     def verify_code(email, code, cursor=None, db=None):
         expected_code = verification_codes.get(email)
+        # expected_code = token.get(code)
         if not expected_code or expected_code != code:
             raise HTTPException(status_code=400, detail="Invalid or expired code")
         return {"message": "Code verified. Please provide birthday."}
+        # return token
 
     @staticmethod
     @dec
@@ -63,3 +71,26 @@ class ControllerUser:
         del temporary_users[email]
 
         return {"message": "User successfully registered"}
+
+    @staticmethod
+    @dec
+    def login(email,password, cursor=None, db=None):
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        if not user:
+            raise HTTPException(status_code=404, detail="No user with this email found")
+
+        if user["passwords"] != password:
+            raise HTTPException(status_code=401, detail="Incorrect password")
+
+        return {
+            "message": "Successful login",
+            "user": {
+                "id": user["id"],
+                "full_name": user["full_name"],
+                "email": user["email"]
+            }
+        }
+
+        
+        
