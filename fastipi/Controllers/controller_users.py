@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from decorators.decorator_product import dec
 from dotenv import load_dotenv
 from Utils.send_ver_mess import Mess as m
+from datetime import datetime
 
 load_dotenv()  
 verification_codes = {}
@@ -72,9 +73,34 @@ class ControllerUser:
 
         return {"message": "User successfully registered"}
 
+    # @staticmethod
+    # @dec
+    # def login(email,password, cursor=None, db=None):
+    #     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    #     user = cursor.fetchone()
+    #     if not user:
+    #         raise HTTPException(status_code=404, detail="No user with this email found")
+
+    #     if user["passwords"] != password:
+    #         raise HTTPException(status_code=401, detail="Incorrect password")
+
+    #     return {
+    #         "message": "Successful login",
+    #         "user": {
+    #             "id": user["id"],
+    #             "full_name": user["full_name"],
+    #             "email": user["email"]
+    #         }
+    #     }
+
+    from datetime import datetime
+from fastapi import HTTPException
+
+class ControllerUser:
+
     @staticmethod
     @dec
-    def login(email,password, cursor=None, db=None):
+    def login(email, password, cursor=None, db=None):
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
         if not user:
@@ -83,14 +109,30 @@ class ControllerUser:
         if user["passwords"] != password:
             raise HTTPException(status_code=401, detail="Incorrect password")
 
+        # 🔽 Отримуємо поточний час
+        login_time = datetime.now()
+
+        # 🔽 Оновлюємо поле last_login
+        try:
+            cursor.execute(
+                "UPDATE users SET last_login = %s WHERE email = %s",
+                (login_time, email)
+            )
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            print(f"[DB ERROR] Failed to update last_login: {e}")
+
         return {
             "message": "Successful login",
             "user": {
                 "id": user["id"],
                 "full_name": user["full_name"],
-                "email": user["email"]
+                "email": user["email"],
+                "last_login": login_time.strftime("%Y-%m-%d %H:%M:%S")
             }
         }
+
 
         
         
