@@ -7,13 +7,17 @@ from Utils.send_ver_mess import Mess as m
 from datetime import datetime
 
 load_dotenv()  
+# це тоже не треба, цим займеть токен
 verification_codes = {}
+# Зробити temporary_users не головну а тільки у register
 temporary_users = {}
+#покищо без солей
 
 class ControllerUser:
 
     @staticmethod
     @dec
+    #без токена(на вході нема токена)
     def register_user(full_name, email, passwords, birthday, cursor=None, db=None):
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         base_result = cursor.fetchone()
@@ -29,26 +33,32 @@ class ControllerUser:
             "birthday": birthday,
             "code": code
         }
+        #Закодувати  temporary_users в JWT
         # token = jwt.encode(temporary_users)
         # sve(email, code)
         # # return {"message": "Verification code sent to your email"}
         # return token
+        # delete temporary_users
 
         m().send_verification_email(email, code)
         return {"message": "Verification code sent to your email"}
 
     @staticmethod
     @dec
+    #Приймати і розкодовувати токен(перевірити коди юзера і системи)
     def verify_code(email, code, cursor=None, db=None):
         expected_code = verification_codes.get(email)
         # expected_code = token.get(code)
         if not expected_code or expected_code != code:
             raise HTTPException(status_code=400, detail="Invalid or expired code")
         return {"message": "Code verified. Please provide birthday."}
+        #перегенерувати токен без кода
         # return token
 
     @staticmethod
     @dec
+    #на вхід йде токен з verify_code
+    #в complete_registration приймати дод. інформацію(sex, phone)
     def complete_registration(email, birthday, cursor=None, db=None):
         user_data = temporary_users.get(email)
         if not user_data:
@@ -70,36 +80,14 @@ class ControllerUser:
 
         del verification_codes[email]
         del temporary_users[email]
+        #повертати токен з новими даними юзера і перезаписати токен
 
         return {"message": "User successfully registered"}
 
-    # @staticmethod
-    # @dec
-    # def login(email,password, cursor=None, db=None):
-    #     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-    #     user = cursor.fetchone()
-    #     if not user:
-    #         raise HTTPException(status_code=404, detail="No user with this email found")
-
-    #     if user["passwords"] != password:
-    #         raise HTTPException(status_code=401, detail="Incorrect password")
-
-    #     return {
-    #         "message": "Successful login",
-    #         "user": {
-    #             "id": user["id"],
-    #             "full_name": user["full_name"],
-    #             "email": user["email"]
-    #         }
-    #     }
-
-    from datetime import datetime
-from fastapi import HTTPException
-
-class ControllerUser:
 
     @staticmethod
     @dec
+    # Токен не приймається
     def login(email, password, cursor=None, db=None):
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
@@ -109,10 +97,8 @@ class ControllerUser:
         if user["passwords"] != password:
             raise HTTPException(status_code=401, detail="Incorrect password")
 
-        # 🔽 Отримуємо поточний час
         login_time = datetime.now()
 
-        # 🔽 Оновлюємо поле last_login
         try:
             cursor.execute(
                 "UPDATE users SET last_login = %s WHERE email = %s",
@@ -123,6 +109,7 @@ class ControllerUser:
             db.rollback()
             print(f"[DB ERROR] Failed to update last_login: {e}")
 
+        #повертати не меседж а токен з його даним з бази(згенерувати)
         return {
             "message": "Successful login",
             "user": {
