@@ -5,7 +5,7 @@ from decorators.decorator_product import dec
 from dotenv import load_dotenv
 from Utils.send_ver_mess import Mess as m
 from datetime import datetime
-
+from token.coding import Tokeniz as t#Переіменувати token в шось інше
 load_dotenv()  
 # це тоже не треба, цим займеть токен
 verification_codes = {}
@@ -19,13 +19,14 @@ class ControllerUser:
     @dec
     #без токена(на вході нема токена)
     def register_user(full_name, email, passwords, birthday, cursor=None, db=None):
+        temporary_users = {}
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         base_result = cursor.fetchone()
         if base_result:
             raise HTTPException(status_code=400, detail="User already exists")
 
         code = ''.join(random.choices(string.digits, k=6))
-        verification_codes[email] = code
+        # verification_codes[email] = code
         temporary_users[email] = {
             "full_name": full_name,
             "email": email,
@@ -34,6 +35,8 @@ class ControllerUser:
             "code": code
         }
         #Закодувати  temporary_users в JWT
+        token = t().create_token(temporary_users)
+
         # token = jwt.encode(temporary_users)
         # sve(email, code)
         # # return {"message": "Verification code sent to your email"}
@@ -41,14 +44,16 @@ class ControllerUser:
         # delete temporary_users
 
         m().send_verification_email(email, code)
+        return token
         return {"message": "Verification code sent to your email"}
+        
 
     @staticmethod
     @dec
     #Приймати і розкодовувати токен(перевірити коди юзера і системи)
-    def verify_code(email, code, cursor=None, db=None):
-        expected_code = verification_codes.get(email)
-        # expected_code = token.get(code)
+    def verify_code(email, code, token ,cursor=None, db=None):
+        # expected_code = verification_codes.get(email)
+        expected_code = token.get(code)
         if not expected_code or expected_code != code:
             raise HTTPException(status_code=400, detail="Invalid or expired code")
         return {"message": "Code verified. Please provide birthday."}

@@ -22,3 +22,6 @@ pymongo
 sendgrid
 bcrypt 
 python-jose
+pyjwt
+Env
+environs
