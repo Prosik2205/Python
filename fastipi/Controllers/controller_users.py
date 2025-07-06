@@ -5,7 +5,7 @@ from decorators.decorator_product import dec
 from dotenv import load_dotenv
 from Utils.send_ver_mess import Mess as m
 from datetime import datetime
-from token.coding import Tokeniz as t#Переіменувати token в шось інше
+from Tokenise.coding import Tokeniz as t#Переіменувати token в шось інше
 load_dotenv()  
 # це тоже не треба, цим займеть токен
 verification_codes = {}
@@ -36,6 +36,7 @@ class ControllerUser:
         }
         #Закодувати  temporary_users в JWT
         token = t().create_token(temporary_users)
+        print("Token:", token)
 
         # token = jwt.encode(temporary_users)
         # sve(email, code)
@@ -64,6 +65,7 @@ class ControllerUser:
     @dec
     #на вхід йде токен з verify_code
     #в complete_registration приймати дод. інформацію(sex, phone)
+    #У статі на вхід має приходити стрінга і повертатись у bool
     def complete_registration(email, birthday, cursor=None, db=None):
         user_data = temporary_users.get(email)
         if not user_data:

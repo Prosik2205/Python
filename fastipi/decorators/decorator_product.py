@@ -12,7 +12,7 @@ def dec(func):
             db, cursor = get_db_connection()
             result = func(*args, **kwargs, cursor=cursor, db=db,)
             db.commit()
-            print("Decorator works")
+            # print("Decorator works")
             return result
         except Exception as e:
             if db:

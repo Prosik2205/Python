@@ -27,6 +27,22 @@ class RegistorValidator:
 
         if birthday.year < 1950:
             raise HTTPException(status_code=400, detail="Date of birth is too old")
+        
+    def validate_phone_number(self, phone_number):
+       pattern = r'^\+380\d{9}$'
+       if not re.match(pattern, phone_number):
+           raise HTTPException(
+               status_code=400,
+               detail="Not valid phone number. Must start with +380 and contain exactly 12 digits"
+           )
+
+    def validate_gender(self, gender):
+        valid_genders = {"чоловік", "жінка", "інше"}
+        if gender.lower() not in valid_genders:
+            raise HTTPException(
+                status_code=400,
+                detail="Not valid gender. Must be one of: 'чоловік', 'жінка', 'інше'"
+            )
 
 
     def validate_user(self, name=None, email=None, password=None, birthday=None):
@@ -41,3 +57,4 @@ class RegistorValidator:
 
         if birthday is not None:
             self.validate_birthday(birthday)
+        
