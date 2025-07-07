@@ -45,7 +45,7 @@ class RegistorValidator:
             )
 
 
-    def validate_user(self, name=None, email=None, password=None, birthday=None):
+    def validate_user(self, name=None, email=None, password=None, birthday=None, phone_number=None, gender=None):
         if name is not None:
             self.vaidate_name(name)
 
@@ -57,4 +57,10 @@ class RegistorValidator:
 
         if birthday is not None:
             self.validate_birthday(birthday)
+
+        if phone_number is not None:
+            self.validate_phone_number(phone_number)
+        
+        if gender is not None:
+            self.validate_gender(gender)
         

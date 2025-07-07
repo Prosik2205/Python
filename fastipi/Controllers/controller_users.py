@@ -10,7 +10,7 @@ load_dotenv()
 # це тоже не треба, цим займеть токен
 verification_codes = {}
 # Зробити temporary_users не головну а тільки у register
-temporary_users = {}
+# temporary_users = {}
 #покищо без солей
 
 class ControllerUser:
@@ -38,28 +38,32 @@ class ControllerUser:
         token = t().create_token(temporary_users)
         print("Token:", token)
 
-        # token = jwt.encode(temporary_users)
-        # sve(email, code)
-        # # return {"message": "Verification code sent to your email"}
-        # return token
-        # delete temporary_users
+        
 
         m().send_verification_email(email, code)
-        return token
-        return {"message": "Verification code sent to your email"}
+        del temporary_users
+        return {
+            "message": "Verification code sent to your email",
+            "toekn" : token
+            }
         
 
     @staticmethod
     @dec
     #Приймати і розкодовувати токен(перевірити коди юзера і системи)
-    def verify_code(email, code, token ,cursor=None, db=None):
-        # expected_code = verification_codes.get(email)
-        expected_code = token.get(code)
+    def verify_code(code: str, token: str, cursor=None, db=None):
+        decoded = t().decodetoken(token)
+        expected_code = decoded.get("code")
         if not expected_code or expected_code != code:
             raise HTTPException(status_code=400, detail="Invalid or expired code")
-        return {"message": "Code verified. Please provide birthday."}
-        #перегенерувати токен без кода
-        # return token
+
+        decoded.pop("code", None)
+        token = t().create_token(decoded)
+
+        return {
+            "message": "Code verified. Please provide birthday.",
+            "token": token
+        }
 
     @staticmethod
     @dec

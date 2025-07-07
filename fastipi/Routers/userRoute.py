@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Query, Request, Depends, HTTPException
 from Controllers.controller_users import ControllerUser as cu
 from Validators.Validator_register import RegistorValidator as rv
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from datetime import date
 user = APIRouter(prefix="/users")
+security = HTTPBearer()
 
 
 @user.post("/register")
@@ -15,11 +17,22 @@ async def register_user(request: Request):
     return cu.register_user(full_name=full_name,email=email,passwords=passwords,birthday=birthday)
 
 
+# @user.post("/verify-code")
+# async def verify_code(request: Request):
+#     user_data = await request.json()
+#     email,code = user_data.get("email"),user_data.get("code")
+#     return cu.verify_code(email, code)
+
 @user.post("/verify-code")
-async def verify_code(request: Request):
-    user_data = await request.json()
-    email,code = user_data.get("email"),user_data.get("code")
-    return cu.verify_code(email, code)
+async def verify_code(request: Request, token: HTTPAuthorizationCredentials = Depends(security)):
+    data = await request.json()
+    code = data.get("code")
+
+    if not code:
+        raise HTTPException(status_code=400, detail="Code is required")
+
+    return cu.verify_code(code=code, token=token.credentials)
+
 
 
 @user.post("/complete-registration")
