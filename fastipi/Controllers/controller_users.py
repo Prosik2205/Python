@@ -27,7 +27,7 @@ class ControllerUser:
 
         code = ''.join(random.choices(string.digits, k=6))
         # verification_codes[email] = code
-        temporary_users[email] = {
+        temporary_users = {
             "full_name": full_name,
             "email": email,
             "passwords": passwords,
@@ -51,7 +51,7 @@ class ControllerUser:
     @staticmethod
     @dec
     #Приймати і розкодовувати токен(перевірити коди юзера і системи)
-    def verify_code(code: str, token: str, cursor=None, db=None):
+    def verify_code(code, token, cursor=None, db=None):
         decoded = t().decodetoken(token)
         expected_code = decoded.get("code")
         if not expected_code or expected_code != code:
@@ -69,19 +69,29 @@ class ControllerUser:
     @dec
     #на вхід йде токен з verify_code
     #в complete_registration приймати дод. інформацію(sex, phone)
-    #У статі на вхід має приходити стрінга і повертатись у bool
-    def complete_registration(email, birthday, cursor=None, db=None):
-        user_data = temporary_users.get(email)
-        if not user_data:
-            raise HTTPException(status_code=400, detail="No user data found. Please register first.")
+    def complete_registration(gender, phone_number,token,cursor=None, db=None):
+
+        decoded = t().decodetoken(token)
         
-        if user_data["birthday"] != birthday:
-            raise HTTPException(status_code=400, detail="Birthday does not match")
+        required_fields = ["full_name", "email", "passwords", "birthday"]
+        
+        if not all(field in decoded for field in required_fields):
+            raise HTTPException(status_code=400, detail="Invalid token payload")
         
         try:
             cursor.execute(
-                "INSERT INTO users (full_name, email, passwords, birthday) VALUES (%s, %s, %s, %s)",
-                (user_data["full_name"], email, user_data["passwords"], birthday)
+                """
+                INSERT INTO users (full_name, email, passwords, birthday, gender, phone_number)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    decoded["full_name"],
+                    decoded["email"],
+                    decoded["passwords"],
+                    decoded["birthday"],
+                    gender,
+                    phone_number
+                )
             )
             db.commit()
         except Exception as e:
@@ -89,11 +99,14 @@ class ControllerUser:
                 db.rollback()
             raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-        del verification_codes[email]
-        del temporary_users[email]
-        #повертати токен з новими даними юзера і перезаписати токен
+        decoded["gender"] = gender
+        decoded["phone_number"] = phone_number
+        new_token = t().create_token(decoded)
 
-        return {"message": "User successfully registered"}
+        return {
+            "message": "User successfully registered",
+            "token": new_token
+        }
 
 
     @staticmethod

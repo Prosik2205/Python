@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, Request, Depends, HTTPException
+from fastapi import APIRouter,  Request, Depends, HTTPException
 from Controllers.controller_users import ControllerUser as cu
 from Validators.Validator_register import RegistorValidator as rv
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -36,11 +36,15 @@ async def verify_code(request: Request, token: HTTPAuthorizationCredentials = De
 
 
 @user.post("/complete-registration")
-async def complete_registration(request: Request):
+async def complete_registration(request: Request, token: HTTPAuthorizationCredentials = Depends(security)):
     user_data = await request.json()
-    email,birthday = user_data.get("email"),user_data.get("birthday")
-    birthday = date.fromisoformat(birthday)
-    return cu.complete_registration(email, birthday)
+    gender = user_data.get("gender")
+    phone_number = user_data.get("phone_number")
+
+    rv().validate_gender(gender)
+    rv().validate_phone_number(phone_number)
+
+    return cu.complete_registration(gender = gender, phone_number = phone_number, token=token.credentials)
 
 
 

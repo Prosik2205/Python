@@ -37,11 +37,11 @@ class RegistorValidator:
            )
 
     def validate_gender(self, gender):
-        valid_genders = {"чоловік", "жінка", "інше"}
+        valid_genders = {"male", "female", "other"}
         if gender.lower() not in valid_genders:
             raise HTTPException(
                 status_code=400,
-                detail="Not valid gender. Must be one of: 'чоловік', 'жінка', 'інше'"
+                detail="Not valid gender. Must be one of: 'male', 'female', 'other'"
             )
 
 
