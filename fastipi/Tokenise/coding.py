@@ -65,3 +65,45 @@ class Tokeniz:
 
 # decoded = Tokeniz().decodetoken(token)
 # print("Decoded payload:", decoded)
+
+
+
+
+# class Tokeniz:
+#     def __init__(self):
+#         load_dotenv()
+#         self.SECRET_KEY = os.getenv("SECRET_KEY")
+#         self.ALGORITHM = os.getenv("ALGORITHM")
+#         self.TOKEN_EXPIRE_MINUTES = int(os.getenv("TOKEN_EXPIRE_MINUTES", 30))
+
+#     def create_token(self, data: dict) -> str:
+#         payload = data.copy()
+
+#         # Додаємо час завершення дії токена у форматі UNIX timestamp
+#         expire = datetime.now(timezone.utc) + timedelta(minutes=self.TOKEN_EXPIRE_MINUTES)
+#         payload["exp"] = int(expire.timestamp())
+
+#         # Перетворення поля birthday у строку (ISO 8601), якщо воно є
+#         if "birthday" in payload and isinstance(payload["birthday"], (datetime, date)):
+#             payload["birthday"] = payload["birthday"].isoformat()
+
+#         token = jwt.encode(payload, self.SECRET_KEY, algorithm=self.ALGORITHM)
+#         return token
+
+#     def decodetoken(self, token: str) -> dict:
+#         try:
+#             payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
+
+#             # Перетворення дати назад у формат datetime.date
+#             if "birthday" in payload:
+#                 try:
+#                     payload["birthday"] = datetime.fromisoformat(payload["birthday"]).date()
+#                 except Exception:
+#                     print("[WARNING] Birthday parsing failed")
+
+#             return payload
+
+#         except ExpiredSignatureError:
+#             raise Exception("Token has expired")
+#         except InvalidTokenError:
+#             raise Exception("Invalid token")
