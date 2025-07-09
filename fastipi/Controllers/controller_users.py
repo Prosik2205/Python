@@ -8,7 +8,7 @@ from datetime import datetime
 from Tokenise.coding import Tokeniz as t#Переіменувати token в шось інше
 load_dotenv()  
 # це тоже не треба, цим займеть токен
-verification_codes = {}
+# verification_codes = {}
 # Зробити temporary_users не головну а тільки у register
 # temporary_users = {}
 #покищо без солей
@@ -37,8 +37,6 @@ class ControllerUser:
         #Закодувати  temporary_users в JWT
         token = t().create_token(temporary_users)
         print("Token:", token)
-
-        
 
         m().send_verification_email(email, code)
         del temporary_users
@@ -133,6 +131,11 @@ class ControllerUser:
             db.rollback()
             print(f"[DB ERROR] Failed to update last_login: {e}")
 
+
+        payload = {k: user[k] for k in ["id", "full_name", "email", "birthday", "gender", "phone_number"]}
+
+        token = t().create_token(payload)
+
         #повертати не меседж а токен з його даним з бази(згенерувати)
         return {
             "message": "Successful login",
@@ -141,7 +144,8 @@ class ControllerUser:
                 "full_name": user["full_name"],
                 "email": user["email"],
                 "last_login": login_time.strftime("%Y-%m-%d %H:%M:%S")
-            }
+            },
+            "token":token
         }
 
 
