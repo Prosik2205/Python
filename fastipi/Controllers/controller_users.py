@@ -5,7 +5,7 @@ from decorators.decorator_product import dec
 from dotenv import load_dotenv
 from Utils.send_ver_mess import Mess as m
 from datetime import datetime
-from Tokenise.coding import Tokeniz as t#Переіменувати token в шось інше
+from Tokenise.coding import Tokeniz as t
 load_dotenv()  
 # це тоже не треба, цим займеть токен
 # verification_codes = {}
@@ -66,7 +66,7 @@ class ControllerUser:
     @staticmethod
     @dec
     #на вхід йде токен з verify_code
-    #в complete_registration приймати дод. інформацію(sex, phone)
+    #в complete_registration приймати дод. інформацію(gender, phone)
     def complete_registration(gender, phone_number,token,cursor=None, db=None):
 
         decoded = t().decodetoken(token)

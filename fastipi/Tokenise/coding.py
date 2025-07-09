@@ -56,8 +56,6 @@ class Tokeniz:
 #     "id": 10,
 #     "email": "test@example.com"
 # }
-
-
 # token = Tokeniz().create_token(user_data)
 # print("JWT Token:", token)
 
