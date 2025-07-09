@@ -36,6 +36,7 @@ class RegistorValidator:
                detail="Not valid phone number. Must start with +380 and contain exactly 12 digits"
            )
 
+#В майбутньому зробити це все в один символ(m,f,o) ЕКОНОМІЯ БАЙТІВ
     def validate_gender(self, gender):
         valid_genders = {"male", "female", "other"}
         if gender.lower() not in valid_genders:

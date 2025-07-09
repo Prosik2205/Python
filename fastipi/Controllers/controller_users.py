@@ -7,11 +7,7 @@ from Utils.send_ver_mess import Mess as m
 from datetime import datetime
 from Tokenise.coding import Tokeniz as t
 load_dotenv()  
-# це тоже не треба, цим займеть токен
-# verification_codes = {}
-# Зробити temporary_users не головну а тільки у register
-# temporary_users = {}
-#покищо без солей
+#Робити солі і хешування пароля
 
 class ControllerUser:
 
@@ -50,7 +46,7 @@ class ControllerUser:
     @dec
     #Приймати і розкодовувати токен(перевірити коди юзера і системи)
     def verify_code(code, token, cursor=None, db=None):
-        decoded = t().decodetoken(token)
+        decoded = t().decodetoken(token)#Перемістити декодуавння на роутер
         expected_code = decoded.get("code")
         if not expected_code or expected_code != code:
             raise HTTPException(status_code=400, detail="Invalid or expired code")
@@ -72,9 +68,9 @@ class ControllerUser:
         decoded = t().decodetoken(token)
         
         required_fields = ["full_name", "email", "passwords", "birthday"]
-        
         if not all(field in decoded for field in required_fields):
             raise HTTPException(status_code=400, detail="Invalid token payload")
+        #ось цю перевірку теж перемістити у Router
         
         try:
             cursor.execute(

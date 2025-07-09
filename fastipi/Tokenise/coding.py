@@ -5,6 +5,8 @@ from datetime import datetime, timedelta, timezone, date
 from jwt import ExpiredSignatureError, InvalidTokenError
 from dotenv import load_dotenv
 
+
+#переробити як варіант знизу
 class CustomEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (datetime, date)):
@@ -18,6 +20,7 @@ class Tokeniz:
         load_dotenv()
         self.SECRET_KEY = os.getenv("SECRET_KEY")
         self.ALGORITHM = os.getenv("ALGORITHM")
+        #передавати в TOKEN_EXPIRE_MINUTES int
         self.TOKEN_EXPIRE_MINUTES = int(os.getenv("TOKEN_EXPIRE_MINUTES", 30))
 
     def create_token(self, data: dict) -> str:
