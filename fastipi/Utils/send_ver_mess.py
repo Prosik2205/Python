@@ -21,7 +21,7 @@ class Mess:
         try:
             sg = SendGridAPIClient(self.api_key)
             sg.send(message)
-            print(f"[SendGrid] Email sent to {email}")
+            # print(f"[SendGrid] Email sent to {email}")
         except Exception as e:
             print(f"[SendGrid ERROR] {str(e)}")
             raise HTTPException(status_code=500, detail="Failed to send verification email")

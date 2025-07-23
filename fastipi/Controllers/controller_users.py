@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from Utils.send_ver_mess import Mess as m
 from datetime import datetime
 from Tokenise.coding import Tokeniz as t
+from Tokenise.hashing import Hash as h
 load_dotenv()  
 #Робити солі і хешування пароля
 
@@ -13,26 +14,24 @@ class ControllerUser:
 
     @staticmethod
     @dec
-    #без токена(на вході нема токена)
     def register_user(full_name, email, passwords, birthday, cursor=None, db=None):
         temporary_users = {}
+        hashed_password = h.hash_password(passwords)
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         base_result = cursor.fetchone()
         if base_result:
             raise HTTPException(status_code=400, detail="User already exists")
 
         code = ''.join(random.choices(string.digits, k=6))
-        # verification_codes[email] = code
         temporary_users = {
             "full_name": full_name,
             "email": email,
-            "passwords": passwords,
+            "passwords": hashed_password,
             "birthday": birthday,
             "code": code
         }
-        #Закодувати  temporary_users в JWT
         token = t().create_token(temporary_users)
-        print("Token:", token)
+        # print("Token:", token)
 
         m().send_verification_email(email, code)
         del temporary_users
@@ -46,7 +45,7 @@ class ControllerUser:
     @dec
     #Приймати і розкодовувати токен(перевірити коди юзера і системи)
     def verify_code(code, token, cursor=None, db=None):
-        decoded = t().decodetoken(token)#Перемістити декодуавння на роутер
+        decoded = t().decodetoken(token)     #Перемістити декодуавння на роутер
         expected_code = decoded.get("code")
         if not expected_code or expected_code != code:
             raise HTTPException(status_code=400, detail="Invalid or expired code")
@@ -62,7 +61,6 @@ class ControllerUser:
     @staticmethod
     @dec
     #на вхід йде токен з verify_code
-    #в complete_registration приймати дод. інформацію(gender, phone)
     def complete_registration(gender, phone_number,token,cursor=None, db=None):
 
         decoded = t().decodetoken(token)
@@ -105,14 +103,15 @@ class ControllerUser:
 
     @staticmethod
     @dec
-    # Токен не приймається
     def login(email, password, cursor=None, db=None):
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
         if not user:
             raise HTTPException(status_code=404, detail="No user with this email found")
 
-        if user["passwords"] != password:
+        # if user["passwords"] != password:
+        #     raise HTTPException(status_code=401, detail="Incorrect password")
+        if not h.check_password(password, user["passwords"]):  # ✅ ПЕРЕВІРКА ХЕШУ
             raise HTTPException(status_code=401, detail="Incorrect password")
 
         login_time = datetime.now()
@@ -132,7 +131,6 @@ class ControllerUser:
 
         token = t().create_token(payload)
 
-        #повертати не меседж а токен з його даним з бази(згенерувати)
         return {
             "message": "Successful login",
             "user": {

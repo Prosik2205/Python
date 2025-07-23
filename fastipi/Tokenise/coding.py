@@ -1,9 +1,10 @@
-import jwt
 import json
 import os
 from datetime import datetime, timedelta, timezone, date
-from jwt import ExpiredSignatureError, InvalidTokenError
+from jose import jwt
+from jose.exceptions import ExpiredSignatureError, JWTError as InvalidTokenError
 from dotenv import load_dotenv
+import uuid
 
 
 #переробити як варіант знизу
@@ -25,11 +26,16 @@ class Tokeniz:
 
     def create_token(self, data: dict) -> str:
         payload = data.copy()
+
+        # Додаємо час завершення дії токена
         expire = datetime.now(timezone.utc) + timedelta(minutes=self.TOKEN_EXPIRE_MINUTES)
-        payload["exp"] = int(expire.timestamp()) 
+        payload["exp"] = int(expire.timestamp())
 
+        # 🔐 Додаємо унікальний salt / jti
+        payload["jti"] = uuid.uuid4().hex
+
+        # Кодуємо payload
         encoded_payload = json.loads(json.dumps(payload, cls=CustomEncoder))
-
         token = jwt.encode(encoded_payload, self.SECRET_KEY, algorithm=self.ALGORITHM)
         return token
 
@@ -55,14 +61,9 @@ class Tokeniz:
 
 
 
-# user_data = {
-#     "id": 10,
-#     "email": "test@example.com"
-# }
-# token = Tokeniz().create_token(user_data)
-# print("JWT Token:", token)
 
-# token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiZnVsbF9uYW1lIjoiXHUwNDFmXHUwNDM1XHUwNDQwXHUwNDM1XHUwNDMyXHUwNDU2XHUwNDQwXHUwNDNhXHUwNDMwIFx1MDQyMlx1MDQzZVx1MDQzYVx1MDQzNVx1MDQzZFx1MDQzMCBcdTA0MTRcdTA0NTZcdTA0M2JcdTA0M2UiLCJlbWFpbCI6IjM4MzZzY2FybGV0QHB1bmtwcm9vZi5jb20iLCJiaXJ0aGRheSI6IjIwMDEtMDEtMDIiLCJnZW5kZXIiOiJtYWxlIiwicGhvbmVfbnVtYmVyIjoiKzM4MDY2MDgxMjQyMiIsImV4cCI6MTc1MjA2NDczMn0.L82vSZQ7sztnNI5wmYsMh7bznUutDq9CrRJ5a-qZZpo"
+
+# token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmdWxsX25hbWUiOiJcdTA0MWZcdTA0MzVcdTA0NDBcdTA0MzVcdTA0MzJcdTA0NTZcdTA0NDBcdTA0M2FcdTA0MzAgXHUwNDIxXHUwNDNlXHUwNDNiXHUwNDU2IFx1MDQyNVx1MDQzNVx1MDQ0OFx1MDQ0M1x1MDQzMlx1MDQzMFx1MDQzZFx1MDQzZFx1MDQ0ZiIsImVtYWlsIjoiNjRnZXJ0aUBtZWNoYW5pY3NwZWRpYS5jb20iLCJwYXNzd29yZHMiOiIkMmIkMTIkSjcya0JrZzNnNHJrTXBKR1FCZXBxZUlIYUNQMFM3SnNVYi9rLjE5QnQ2d0owcUg3S2lEQnUiLCJiaXJ0aGRheSI6IjIwMDEtMDEtMDIiLCJjb2RlIjoiNDE2ODE0IiwiZXhwIjoxNzUzMjg5NzI2LCJqdGkiOiJlNWI1YTBkMjU3MTk0N2Q0YjJkYjRmMmQ4N2U3OTlhYiJ9.Gv8U3_fktRxb674zDxWxuScJBq5CPCW8ZLDyFv2LHdM"
 
 # decoded = Tokeniz().decodetoken(token)
 # print("Decoded payload:", decoded)
