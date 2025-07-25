@@ -1,5 +1,5 @@
 from fastapi import Request, HTTPException
-from Tokenise.coding import Tokeniz as t
+from tokenise.coding import Tokeniz as t
 
 
 def extract_and_decode_token(request: Request):

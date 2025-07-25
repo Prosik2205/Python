@@ -3,10 +3,10 @@ import string
 from fastapi import HTTPException
 from decorators.decorator_product import dec
 from dotenv import load_dotenv
-from Utils.send_ver_mess import Mess as m
+from utils.send_ver_mess import Mess as m
 from datetime import datetime
-from Tokenise.coding import Tokeniz as t
-from Tokenise.hashing import Hash as h
+from tokenise.coding import Tokeniz as t
+from tokenise.hashing import Hash as h
 load_dotenv()  
 
 class ControllerUser:

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Query
-from Controllers.controller import ControllerProducts as cp
-from Validators.Validtor_product import ProductValidator
-from Validators.Validator_response import Responce as resp
+from controllers.controller import ControllerProducts as cp
+from validators.validtor_product import ProductValidator
+from validators.validator_response import Responce as resp
 prod = APIRouter(prefix="/products")
 pv = ProductValidator()
 

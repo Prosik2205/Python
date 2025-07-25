@@ -1,10 +1,10 @@
 from fastapi import APIRouter,  Request, Depends, HTTPException
-from Controllers.controller_users import ControllerUser as cu
-from Validators.Validator_register import RegistorValidator as rv
+from controllers.controller_users import ControllerUser as cu
+from validators.validator_register import RegistorValidator as rv
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from datetime import date
-from Tokenise.coding import Tokeniz as t
-from Utils.token_utils import extract_and_decode_token as ed
+from tokenise.coding import Tokeniz as t
+from utils.token_utils import extract_and_decode_token as ed
 user = APIRouter(prefix="/users")
 security = HTTPBearer()
 
