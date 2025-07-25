@@ -8,7 +8,6 @@ from datetime import datetime
 from Tokenise.coding import Tokeniz as t
 from Tokenise.hashing import Hash as h
 load_dotenv()  
-#Робити солі і хешування пароля
 
 class ControllerUser:
 
@@ -43,15 +42,14 @@ class ControllerUser:
 
     @staticmethod
     @dec
-    #Приймати і розкодовувати токен(перевірити коди юзера і системи)
     def verify_code(code, token, cursor=None, db=None):
-        decoded = t().decodetoken(token)     #Перемістити декодуавння на роутер
-        expected_code = decoded.get("code")
+        expected_code = token.get("code")
+        
         if not expected_code or expected_code != code:
             raise HTTPException(status_code=400, detail="Invalid or expired code")
 
-        decoded.pop("code", None)
-        token = t().create_token(decoded)
+        token.pop("code", None)
+        token = t().create_token(token)
 
         return {
             "message": "Code verified. Please provide birthday.",
@@ -60,13 +58,10 @@ class ControllerUser:
 
     @staticmethod
     @dec
-    #на вхід йде токен з verify_code
     def complete_registration(gender, phone_number,token,cursor=None, db=None):
 
-        decoded = t().decodetoken(token)
-        
         required_fields = ["full_name", "email", "passwords", "birthday"]
-        if not all(field in decoded for field in required_fields):
+        if not all(field in token for field in required_fields):
             raise HTTPException(status_code=400, detail="Invalid token payload")
         #ось цю перевірку теж перемістити у Router
         
@@ -77,10 +72,10 @@ class ControllerUser:
                 VALUES (%s, %s, %s, %s, %s, %s)
                 """,
                 (
-                    decoded["full_name"],
-                    decoded["email"],
-                    decoded["passwords"],
-                    decoded["birthday"],
+                    token["full_name"],
+                    token["email"],
+                    token["passwords"],
+                    token["birthday"],
                     gender,
                     phone_number
                 )
@@ -91,9 +86,9 @@ class ControllerUser:
                 db.rollback()
             raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-        decoded["gender"] = gender
-        decoded["phone_number"] = phone_number
-        new_token = t().create_token(decoded)
+        token["gender"] = gender
+        token["phone_number"] = phone_number
+        new_token = t().create_token(token)
 
         return {
             "message": "User successfully registered",
@@ -109,9 +104,8 @@ class ControllerUser:
         if not user:
             raise HTTPException(status_code=404, detail="No user with this email found")
 
-        # if user["passwords"] != password:
-        #     raise HTTPException(status_code=401, detail="Incorrect password")
-        if not h.check_password(password, user["passwords"]):  # ✅ ПЕРЕВІРКА ХЕШУ
+
+        if not h.check_password(password, user["passwords"]):  #  ПЕРЕВІРКА ХЕШУ
             raise HTTPException(status_code=401, detail="Incorrect password")
 
         login_time = datetime.now()

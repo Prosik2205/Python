@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 import uuid
 
 
-#переробити як варіант знизу
 class CustomEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (datetime, date)):
@@ -63,10 +62,10 @@ class Tokeniz:
 
 
 
-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmdWxsX25hbWUiOiJcdTA0MWZcdTA0MzVcdTA0NDBcdTA0MzVcdTA0MzJcdTA0NTZcdTA0NDBcdTA0M2FcdTA0MzAgXHUwNDIxXHUwNDNlXHUwNDNiXHUwNDU2IFx1MDQyNVx1MDQzNVx1MDQ0OFx1MDQ0M1x1MDQzMlx1MDQzMFx1MDQzZFx1MDQzZFx1MDQ0ZiIsImVtYWlsIjoiNjRnZXJ0aUBtZWNoYW5pY3NwZWRpYS5jb20iLCJwYXNzd29yZHMiOiIkMmIkMTIkcm9CWEIwenNMQ1JyMVVMTm4zVTlGZXFjaXE4aWxyRmd4d0VsSUtCZTcyUWhSNHFjbWs4YS4iLCJiaXJ0aGRheSI6IjIwMDEtMDEtMDIiLCJleHAiOjE3NTMyOTA4MTYsImp0aSI6IjY2NzdlZGQyZDViMzQ5NzhiZjM1ZjA1MmNkOWRkODE4In0.8Q-AVDKxuKCPkkOjI5tJc6VtgeBpXetGbQG4ag4obKU"
+# token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmdWxsX25hbWUiOiJcdTA0MWZcdTA0MzVcdTA0NDBcdTA0MzVcdTA0MzJcdTA0NTZcdTA0NDBcdTA0M2FcdTA0MzAgXHUwNDEyXHUwNDQxXHUwNDRjXHUwNDNlXHUwNDMzXHUwNDNlIFx1MDQxN1x1MDQ0MFx1MDQzMFx1MDQzN1x1MDQ0MyIsImVtYWlsIjoiYmVpZ2Vzb3JlQG1lY2hhbmljc3BlZGlhLmNvbSIsInBhc3N3b3JkcyI6IiQyYiQxMiRuSEU4M1o0MXBTZjRzeExLbXZmVXh1WUlRdExLVS9pUGJpRXEvN1VscGpzMU1BakZJL2FnSyIsImJpcnRoZGF5IjoiMjAwMS0wMS0wMiIsImV4cCI6MTc1MzQ0OTYxMiwianRpIjoiNzdhZmEyYjhiYjQ1NGMxMGE4NWVjN2M4NzhhNDJkOTgifQ.HC5OuiVmy8PoZJ6vYvnQFrbTRFOzZei5wh_pj2VBOXg"
 
-decoded = Tokeniz().decodetoken(token)
-print("Decoded payload:", decoded)
+# decoded = Tokeniz().decodetoken(token)
+# print("Decoded payload:", decoded)
 
 
 
