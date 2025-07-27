@@ -1,5 +1,5 @@
-from Routers.router import prod
-from Routers.userRoute import user
+from routers.router import prod
+from routers.userRoute import user
 
 class Registrator:
     def __init__(self,app):

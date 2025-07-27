@@ -1,7 +1,7 @@
 import random
 import string
 from fastapi import HTTPException
-from decorators.decorator_product import dec
+from decorators.decorator_product import connecting
 from dotenv import load_dotenv
 from utils.send_ver_mess import Mess as m
 from datetime import datetime
@@ -12,7 +12,7 @@ load_dotenv()
 class ControllerUser:
 
     @staticmethod
-    @dec
+    @connecting
     def register_user(full_name, email, passwords, birthday, cursor=None, db=None):
         temporary_users = {}
         hashed_password = h.hash_password(passwords)
@@ -41,7 +41,7 @@ class ControllerUser:
         
 
     @staticmethod
-    @dec
+    @connecting
     def verify_code(code, token, cursor=None, db=None):
         expected_code = token.get("code")
         
@@ -57,7 +57,7 @@ class ControllerUser:
         }
 
     @staticmethod
-    @dec
+    @connecting
     def complete_registration(gender, phone_number,token,cursor=None, db=None):
 
         required_fields = ["full_name", "email", "passwords", "birthday"]
@@ -97,7 +97,7 @@ class ControllerUser:
 
 
     @staticmethod
-    @dec
+    @connecting
     def login(email, password, cursor=None, db=None):
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()

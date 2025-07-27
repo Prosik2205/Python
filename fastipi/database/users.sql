@@ -1,0 +1,14 @@
+CREATE TABLE users(
+id SERIAL PRIMARY KEY,
+full_name VARCHAR(50) NOT NULL,
+email VARCHAR(50) UNIQUE NOT NULL,
+passwords VARCHAR(60) NOT NULL,
+birthday DATE NOT NULL,
+last_login TIMESTAMP,
+plan_id SMALLINT,
+role_id SMALLINT,
+phone_nuber VARCHAR(20) NOT NULL,
+gender VARCHAR(10) NOT NULL,
+);
+
+

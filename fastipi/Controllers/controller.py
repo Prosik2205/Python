@@ -1,11 +1,11 @@
 import psycopg2  
 from fastapi import HTTPException
-from decorators.decorator_product import dec
+from decorators.decorator_product import connecting
 
 class ControllerProducts:    
 
     @staticmethod
-    @dec
+    @connecting
     def post_product(id, name, price, cursor=None, db=None):
         sql = """
             INSERT INTO products (id, name, price) 
@@ -23,7 +23,7 @@ class ControllerProducts:
 
         
     @staticmethod
-    @dec
+    @connecting
     def get_product(product_id, cursor=None, db=None):
         sql = "SELECT id, name, price::float AS price FROM products WHERE id = %s;"
         cursor.execute(sql, (product_id,))
@@ -34,7 +34,7 @@ class ControllerProducts:
        
 
     @staticmethod
-    @dec
+    @connecting
     def put_product(product_id,_name,_price, cursor=None, db=None):
         sql = """
             UPDATE products SET name = %s, price = %s WHERE id = %s RETURNING *;
@@ -47,7 +47,7 @@ class ControllerProducts:
 
 
     @staticmethod
-    @dec
+    @connecting
     def del_product(product_id, cursor=None, db=None):
         sql = "DELETE FROM products WHERE id = %s RETURNING *;"
         cursor.execute(sql, (product_id,))
