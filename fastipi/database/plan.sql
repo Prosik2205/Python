@@ -1,4 +1,7 @@
 CREATE TABLE plan(
 id SERIAL PRIMARY KEY,
-name VARCHAR(20) NOT NULL
+name VARCHAR(20) UNIQUE NOT NULL,
+description VARCHAR(250),
+price NUMERIC(10,2),
+duration_days INT
 );
