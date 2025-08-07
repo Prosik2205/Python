@@ -17,7 +17,7 @@ def connecting(func):
         except Exception as e:
             if db:
                 db.rollback()
-            raise HTTPException(status_code=500, detail=f"Database error: {e}")
+            raise HTTPException(status_code=500, detail=f"(Decorator error)Database error: {e}")
         finally:
             if db:
                 db.close()

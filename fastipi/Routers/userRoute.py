@@ -1,16 +1,12 @@
-from fastapi import APIRouter,  Request, Depends, HTTPException
+from fastapi import APIRouter,  Request, HTTPException
 from controllers.controller_users import ControllerUser as cu
 from validators.validator_register import RegistorValidator as rv
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPBearer
 from datetime import date
 from tokenise.coding import Tokeniz as t
 from decorators.decoding_token import token_required
 user = APIRouter(prefix="/users")
 security = HTTPBearer()
-
-
-#Зробити декодування токена через декоратор
-#Добавити код для створеня sql таблиць і редагувати створенний
 
 @user.post("/register")
 # def register_user(full_name: str = Query(alias="full_name"), email: str = Query(alias="email"), passwords: str = Query(alias="passwords"),birthday: date = Query(alias="birthday")):
