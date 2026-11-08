@@ -1,4 +1,5 @@
 import random
+import math
 import copy
 import statistics
 import matplotlib.pyplot as plt
@@ -21,7 +22,7 @@ class GeneticAlgorithm:
         p_cross=0.8,
         p_mut=0.01,
         elite_size=0,
-        max_gen=200,
+        max_gen=300,
         tournament_k=3,
         adaptive=False,
         seed=None
@@ -57,53 +58,34 @@ class GeneticAlgorithm:
 
     # Турнірний відбір
     def tournament_select(self, population):
-        contestants = random.sample(population, self.k)
-        return max(contestants, key=lambda ind: ind.fitness)
+        group = random.sample(population, self.k)
+        return max(group, key=lambda x: x.fitness)
 
-    # Однопунктове схрещування
+    # Однопунктове схрещування для базового ГА
     def one_point_crossover(self, p1, p2):
         point = random.randint(1, len(p1.chromosome) - 1)
 
-        c1 = Individual(
-            p1.chromosome[:point] +
-            p2.chromosome[point:]
-        )
+        c1 = p1.chromosome[:point] + p2.chromosome[point:]
+        c2 = p2.chromosome[:point] + p1.chromosome[point:]
 
-        c2 = Individual(
-            p2.chromosome[:point] +
-            p1.chromosome[point:]
-        )
+        return Individual(c1), Individual(c2)
 
-        return c1, c2
-
-    # Адаптивна мутація
-    def adaptive_mutation_rate(
-        self,
-        population,
-        p_min=0.01,
-        p_max=0.10,
-        threshold=0.01
-    ):
-        fitnesses = [
-            ind.fitness for ind in population
-        ]
+    # Адаптивна ймовірність мутації
+    def adaptive_rate(self, population):
+        values = [x.fitness for x in population]
 
         diversity = (
-            statistics.pstdev(fitnesses)
-            if len(fitnesses) > 1 else 0
+            statistics.pstdev(values)
+            if len(values) > 1
+            else 0
         )
 
-        if diversity < threshold:
-            return p_max
+        if diversity < 0.01:
+            return 0.10
 
-        ratio = min(
-            threshold / diversity,
+        return 0.01 + 0.09 * min(
+            0.01 / diversity,
             1.0
-        )
-
-        return (
-            p_min +
-            (p_max - p_min) * ratio
         )
 
     def run(self):
@@ -116,107 +98,80 @@ class GeneticAlgorithm:
         ]
 
         self.evaluate(population)
-        self.history = []
 
-        global_best = copy.deepcopy(
-            max(
-                population,
-                key=lambda ind: ind.fitness
-            )
+        best = copy.deepcopy(
+            max(population, key=lambda x: x.fitness)
         )
 
-        best_generation = 0
+        best_gen = 0
+        self.history = []
 
         for gen in range(self.max_gen):
 
-            current_best = max(
+            current = max(
                 population,
-                key=lambda ind: ind.fitness
+                key=lambda x: x.fitness
             )
 
-            self.history.append(
-                current_best.fitness
-            )
+            if current.fitness > best.fitness:
+                best = copy.deepcopy(current)
+                best_gen = gen
 
-            if current_best.fitness > global_best.fitness:
-                global_best = copy.deepcopy(
-                    current_best
-                )
-                best_generation = gen
+            # Найкращий fitness, знайдений до цього покоління
+            self.history.append(best.fitness)
 
             # Елітизм
             elite = sorted(
                 population,
-                key=lambda ind: ind.fitness,
+                key=lambda x: x.fitness,
                 reverse=True
             )[:self.elite_size]
 
             elite = [
-                copy.deepcopy(ind)
-                for ind in elite
+                copy.deepcopy(x)
+                for x in elite
             ]
 
             # Фіксована або адаптивна мутація
-            if self.adaptive:
-                current_p_mut = (
-                    self.adaptive_mutation_rate(
-                        population
-                    )
-                )
-            else:
-                current_p_mut = self.p_mut
+            rate = (
+                self.adaptive_rate(population)
+                if self.adaptive
+                else self.p_mut
+            )
 
-            offspring = []
+            children = []
 
             needed = (
                 self.pop_size -
                 self.elite_size
             )
 
-            while len(offspring) < needed:
+            while len(children) < needed:
 
-                p1 = self.tournament_select(
-                    population
-                )
-
-                p2 = self.tournament_select(
-                    population
-                )
+                p1 = self.tournament_select(population)
+                p2 = self.tournament_select(population)
 
                 if random.random() < self.p_cross:
-                    c1, c2 = self.crossover(
-                        p1, p2
-                    )
+                    c1, c2 = self.crossover(p1, p2)
                 else:
                     c1 = copy.deepcopy(p1)
                     c2 = copy.deepcopy(p2)
 
-                self.mutate(
-                    c1,
-                    current_p_mut
-                )
+                self.mutate(c1, rate)
+                self.mutate(c2, rate)
 
-                self.mutate(
-                    c2,
-                    current_p_mut
-                )
-
-                offspring.extend(
-                    [c1, c2]
-                )
+                children.extend([c1, c2])
 
             population = (
                 elite +
-                offspring[:needed]
+                children[:needed]
             )
 
             self.evaluate(population)
 
-        self.convergence_gen = (
-            best_generation
-        )
+        self.convergence_gen = best_gen
 
-        return global_best
+        return best
 
 
 # ============================================================
@@ -224,150 +179,169 @@ class GeneticAlgorithm:
 # ============================================================
 
 class OneMaxGA(GeneticAlgorithm):
-    def __init__(
-        self,
-        length=50,
-        **kwargs
-    ):
+    def __init__(self, length=50, **kwargs):
         super().__init__(**kwargs)
         self.length = length
 
     def create_individual(self):
-        chromosome = [
+        return Individual([
             random.randint(0, 1)
             for _ in range(self.length)
-        ]
+        ])
 
-        return Individual(chromosome)
-
-    def fitness_fn(self, individual):
-        return sum(
-            individual.chromosome
-        )
+    def fitness_fn(self, ind):
+        return sum(ind.chromosome)
 
     def crossover(self, p1, p2):
-        return self.one_point_crossover(
-            p1, p2
-        )
+        return self.one_point_crossover(p1, p2)
 
-    def mutate(
-        self,
-        individual,
-        p_mut=None
-    ):
+    def mutate(self, ind, p_mut=None):
         rate = (
             self.p_mut
             if p_mut is None
             else p_mut
         )
 
-        individual.chromosome = [
+        ind.chromosome = [
             bit ^ 1
             if random.random() < rate
             else bit
-            for bit in individual.chromosome
+            for bit in ind.chromosome
         ]
 
-        individual.fitness = None
+        ind.fitness = None
 
 
 # ============================================================
-# ВАРІАНТ 7 — PARTITION PROBLEM
+# ВАРІАНТ 8 — XOR
 # ============================================================
 
-class PartitionGA(GeneticAlgorithm):
+class XORGA(GeneticAlgorithm):
+
     def __init__(
         self,
-        numbers,
+        weight_min=-5.0,
+        weight_max=5.0,
+        sigma=0.5,
         **kwargs
     ):
         super().__init__(**kwargs)
 
-        self.numbers = numbers
-        self.length = len(numbers)
+        self.weight_min = weight_min
+        self.weight_max = weight_max
+        self.sigma = sigma
 
+        # XOR dataset
+        self.data = [
+            (0, 0, 0),
+            (0, 1, 1),
+            (1, 0, 1),
+            (1, 1, 0)
+        ]
+
+    # 9 параметрів мережі 2-2-1
     def create_individual(self):
-        # 0 -> множина A
-        # 1 -> множина B
-
         chromosome = [
-            random.randint(0, 1)
-            for _ in range(self.length)
+            random.uniform(
+                self.weight_min,
+                self.weight_max
+            )
+            for _ in range(9)
         ]
 
         return Individual(chromosome)
 
-    def difference(self, chromosome):
+    def sigmoid(self, x):
+        # захист від переповнення exp()
+        x = max(-60, min(60, x))
 
-        sum_a = sum(
-            number
-            for number, bit
-            in zip(
-                self.numbers,
-                chromosome
+        return 1.0 / (
+            1.0 + math.exp(-x)
+        )
+
+    # Пряме поширення сигналу
+    def predict(self, chromosome, x1, x2):
+
+        (
+            w1, w2, b1,
+            w3, w4, b2,
+            w5, w6, b3
+        ) = chromosome
+
+        h1 = self.sigmoid(
+            x1 * w1 +
+            x2 * w2 +
+            b1
+        )
+
+        h2 = self.sigmoid(
+            x1 * w3 +
+            x2 * w4 +
+            b2
+        )
+
+        output = self.sigmoid(
+            h1 * w5 +
+            h2 * w6 +
+            b3
+        )
+
+        return output
+
+    # Середньоквадратична помилка
+    def mse(self, chromosome):
+        error = 0.0
+
+        for x1, x2, target in self.data:
+
+            output = self.predict(
+                chromosome,
+                x1,
+                x2
             )
-            if bit == 0
+
+            error += (
+                target - output
+            ) ** 2
+
+        return error / len(self.data)
+
+    # Максимізуємо fitness
+    def fitness_fn(self, ind):
+
+        error = self.mse(
+            ind.chromosome
         )
 
-        sum_b = sum(
-            number
-            for number, bit
-            in zip(
-                self.numbers,
-                chromosome
-            )
-            if bit == 1
+        return 1.0 / (
+            1.0 + error
         )
 
-        return abs(
-            sum_a - sum_b
-        )
-
-    # Fitness максимізується
-    def fitness_fn(self, individual):
-
-        difference = self.difference(
-            individual.chromosome
-        )
-
-        return (
-            1.0 /
-            (1.0 + difference)
-        )
-
-    # Двопунктове схрещування
+    # Рівномірне схрещування
     def crossover(self, p1, p2):
 
-        i, j = sorted(
-            random.sample(
-                range(1, self.length),
-                2
-            )
-        )
+        c1 = []
+        c2 = []
 
-        c1 = (
-            p1.chromosome[:i] +
-            p2.chromosome[i:j] +
-            p1.chromosome[j:]
-        )
+        for g1, g2 in zip(
+            p1.chromosome,
+            p2.chromosome
+        ):
 
-        c2 = (
-            p2.chromosome[:i] +
-            p1.chromosome[i:j] +
-            p2.chromosome[j:]
-        )
+            if random.random() < 0.5:
+                c1.append(g1)
+                c2.append(g2)
+            else:
+                c1.append(g2)
+                c2.append(g1)
 
         return (
             Individual(c1),
             Individual(c2)
         )
 
-    # Bit Flip mutation
-    def mutate(
-        self,
-        individual,
-        p_mut=None
-    ):
+    # Гаусова мутація
+    def mutate(self, ind, p_mut=None):
 
         rate = (
             self.p_mut
@@ -375,51 +349,54 @@ class PartitionGA(GeneticAlgorithm):
             else p_mut
         )
 
-        individual.chromosome = [
-            bit ^ 1
-            if random.random() < rate
-            else bit
-            for bit in individual.chromosome
-        ]
+        chromosome = []
 
-        individual.fitness = None
+        for gene in ind.chromosome:
 
-    def split(self, chromosome):
+            if random.random() < rate:
+                gene += random.gauss(
+                    0,
+                    self.sigma
+                )
 
-        group_a = [
-            number
-            for number, bit
-            in zip(
-                self.numbers,
-                chromosome
+            gene = max(
+                self.weight_min,
+                min(
+                    self.weight_max,
+                    gene
+                )
             )
-            if bit == 0
-        ]
 
-        group_b = [
-            number
-            for number, bit
-            in zip(
-                self.numbers,
-                chromosome
+            chromosome.append(gene)
+
+        ind.chromosome = chromosome
+        ind.fitness = None
+
+    def accuracy(self, chromosome):
+
+        correct = 0
+
+        for x1, x2, target in self.data:
+
+            output = self.predict(
+                chromosome,
+                x1,
+                x2
             )
-            if bit == 1
-        ]
 
-        return group_a, group_b
+            predicted = (
+                1 if output >= 0.5
+                else 0
+            )
 
+            if predicted == target:
+                correct += 1
 
-# Методичка не задає конкретні 20 елементів.
-NUMBERS = [
-    853, 746, 639, 582, 491,
-    437, 386, 335, 294, 251,
-    217, 183, 157, 131, 109,
-    89, 73, 61, 47, 31
-]
+        return correct / len(self.data)
 
 
 # ============================================================
-# ЕКСПЕРИМЕНТИ
+# СЕРІЯ ЕКСПЕРИМЕНТІВ
 # ============================================================
 
 def run_experiments():
@@ -467,20 +444,20 @@ def run_experiments():
 
         fitnesses = []
         generations = []
+        accuracies = []
         run_histories = []
 
-        # 5 запусків кожної конфігурації
         for run in range(5):
 
-            ga = PartitionGA(
-                NUMBERS,
+            ga = XORGA(
                 pop_size=n,
                 p_cross=pc,
                 p_mut=pm,
                 elite_size=elite,
-                max_gen=200,
+                max_gen=300,
                 tournament_k=k,
                 adaptive=adaptive,
+                sigma=0.5,
                 seed=100 + run
             )
 
@@ -494,6 +471,12 @@ def run_experiments():
                 ga.convergence_gen
             )
 
+            accuracies.append(
+                ga.accuracy(
+                    best.chromosome
+                )
+            )
+
             run_histories.append(
                 ga.history
             )
@@ -504,11 +487,10 @@ def run_experiments():
                 best.fitness >
                 overall_best.fitness
             ):
-                overall_best = (
-                    copy.deepcopy(best)
+                overall_best = copy.deepcopy(
+                    best
                 )
 
-        # Середня крива збіжності
         histories[name] = [
             statistics.mean(values)
             for values
@@ -525,8 +507,11 @@ def run_experiments():
                 min(fitnesses),
 
             "average":
+                statistics.mean(fitnesses),
+
+            "accuracy":
                 statistics.mean(
-                    fitnesses
+                    accuracies
                 ),
 
             "avg_generation":
@@ -535,15 +520,11 @@ def run_experiments():
                 )
         })
 
-    return (
-        results,
-        histories,
-        overall_best
-    )
+    return results, histories, overall_best
 
 
 # ============================================================
-# ВИВЕДЕННЯ ТА ГРАФІК
+# ВИВЕДЕННЯ РЕЗУЛЬТАТІВ
 # ============================================================
 
 def print_results(results):
@@ -553,17 +534,18 @@ def print_results(results):
         "(5 запусків):"
     )
 
-    print("-" * 105)
+    print("-" * 120)
 
     print(
         f"{'Конфігурація':<42}"
         f"{'Best':>10}"
         f"{'Worst':>10}"
         f"{'Average':>12}"
+        f"{'Accuracy':>12}"
         f"{'Avg gen':>12}"
     )
 
-    print("-" * 105)
+    print("-" * 120)
 
     for r in results:
 
@@ -572,9 +554,14 @@ def print_results(results):
             f"{r['best']:>10.4f}"
             f"{r['worst']:>10.4f}"
             f"{r['average']:>12.4f}"
+            f"{r['accuracy'] * 100:>11.1f}%"
             f"{r['avg_generation']:>12.2f}"
         )
 
+
+# ============================================================
+# ГРАФІК ЗБІЖНОСТІ
+# ============================================================
 
 def plot_convergence(histories):
 
@@ -603,8 +590,9 @@ def plot_convergence(histories):
     plt.title("Порівняння збіжності")
 
     plt.legend()
-    plt.grid(True)
+    plt.grid()
     plt.tight_layout()
+
     plt.show()
 
 
@@ -634,42 +622,50 @@ def main():
         "/ 50"
     )
 
-    # Варіант 7
+    # Варіант 8
     results, histories, best = (
         run_experiments()
     )
 
     print_results(results)
 
-    # Найкраще розбиття
-    ga = PartitionGA(NUMBERS)
+    ga = XORGA()
 
-    group_a, group_b = ga.split(
-        best.chromosome
-    )
+    print("\nНайкращі ваги:")
 
-    print("\nНайкраще розбиття:")
-
-    print(
-        "A =",
-        group_a,
-        "sum =",
-        sum(group_a)
-    )
-
-    print(
-        "B =",
-        group_b,
-        "sum =",
-        sum(group_b)
-    )
-
-    print(
-        "Різниця =",
-        abs(
-            sum(group_a) -
-            sum(group_b)
+    for i, weight in enumerate(
+        best.chromosome,
+        start=1
+    ):
+        print(
+            f"w{i} = {weight:.4f}"
         )
+
+    print("\nРезультат XOR:")
+
+    for x1, x2, target in ga.data:
+
+        output = ga.predict(
+            best.chromosome,
+            x1,
+            x2
+        )
+
+        predicted = (
+            1 if output >= 0.5
+            else 0
+        )
+
+        print(
+            f"{x1} XOR {x2} "
+            f"= {predicted} "
+            f"(output={output:.4f}, "
+            f"target={target})"
+        )
+
+    print(
+        "\nMSE =",
+        ga.mse(best.chromosome)
     )
 
     print(
@@ -677,7 +673,11 @@ def main():
         best.fitness
     )
 
-    # Графік збіжності
+    print(
+        "Accuracy =",
+        f"{ga.accuracy(best.chromosome) * 100:.1f}%"
+    )
+
     plot_convergence(histories)
 
 
